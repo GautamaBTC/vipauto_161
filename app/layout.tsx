@@ -107,7 +107,7 @@ export default function RootLayout({
         <ParallaxBackground intensity={1} />
         <div className="noise-overlay" />
         <MobileMenu />
-        {children}
+        <div className="relative z-10">{children}</div>
         <Script id="local-business-jsonld" type="application/ld+json">
           {JSON.stringify(localBusinessJsonLd)}
         </Script>

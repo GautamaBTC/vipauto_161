@@ -178,7 +178,7 @@ export function ParallaxBackground({ scrollContainerRef, intensity = 1 }: Parall
     <div
       ref={containerRef}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 -z-20 h-full w-full overflow-hidden opacity-0"
+      className="pointer-events-none fixed inset-0 z-0 h-full w-full overflow-hidden opacity-0"
       style={{ willChange: "opacity" }}
     >
       {LAYERS.map((layer, i) => (
