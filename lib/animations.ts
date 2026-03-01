@@ -1,37 +1,57 @@
 import { gsap } from "gsap";
 
 export const EASE = {
-  elastic: "elastic.out(1, 0.5)",
-  smooth: "power2.out",
+  elastic: "elastic.out(1.2, 0.5)",
   expo: "expo.out",
-  bounceIn: "back.in(2.5)",
-  quint: "power4.inOut",
+  smooth: "power2.out",
+  smoothIn: "power2.in",
+  bounce: "back.out(2)",
 } as const;
 
 export const DURATION = {
-  morph: 0.4,
-  menu: 0.5,
-  stagger: 0.08,
+  morph: 0.55,
+  morphPhase1: 0.2,
+  morphPhase2: 0.35,
+  menu: 0.45,
+  stagger: 0.07,
   staggerReverse: 0.04,
-  item: 0.5,
-  itemExit: 0.3,
-  footer: 0.5,
-  glow: 0.3,
+  item: 0.55,
+  itemExit: 0.25,
+  footer: 0.45,
 } as const;
 
-export const BURGER = {
-  width: 28,
-  lineHeight: 2,
-  gap: 6,
-  get totalHeight() {
-    return this.lineHeight * 3 + this.gap * 2;
-  },
-  get translateY() {
-    return this.gap + this.lineHeight;
-  },
-} as const;
+export function createBurgerTimeline(top: HTMLElement, mid: HTMLElement, bot: HTMLElement): gsap.core.Timeline {
+  const tl = gsap.timeline({ paused: true });
 
-export function createMenuOpenTimeline(
+  tl.to(top, { y: 8, duration: DURATION.morphPhase1, ease: "power3.inOut" }, 0);
+  tl.to(bot, { y: -8, duration: DURATION.morphPhase1, ease: "power3.inOut" }, 0);
+  tl.to(mid, { scaleX: 0, opacity: 0, duration: DURATION.morphPhase1 * 0.8, ease: "power2.in" }, 0.05);
+
+  tl.to(
+    top,
+    { rotation: 50, backgroundColor: "#dc2626", duration: DURATION.morphPhase2, ease: EASE.elastic },
+    DURATION.morphPhase1 - 0.05,
+  );
+  tl.to(
+    bot,
+    { rotation: -50, backgroundColor: "#dc2626", duration: DURATION.morphPhase2, ease: EASE.elastic },
+    DURATION.morphPhase1 - 0.05,
+  );
+
+  tl.to(
+    [top, bot],
+    {
+      boxShadow: "0 0 8px rgba(220,38,38,0.5), 0 0 25px rgba(220,38,38,0.2)",
+      duration: 0.3,
+      ease: "power1.out",
+    },
+    DURATION.morphPhase1 + 0.15,
+  );
+
+  return tl;
+}
+
+export function createMenuTimeline(
   overlay: HTMLElement,
   items: HTMLElement[],
   divider: HTMLElement | null,
@@ -39,81 +59,35 @@ export function createMenuOpenTimeline(
 ): gsap.core.Timeline {
   const tl = gsap.timeline({ paused: true, defaults: { ease: EASE.expo } });
 
-  tl.to(overlay, { autoAlpha: 1, duration: DURATION.menu, ease: EASE.smooth });
-  tl.to(
-    items,
+  tl.fromTo(
+    overlay,
     {
-      x: 0,
+      clipPath: "circle(0% at calc(100% - 44px) 40px)",
       opacity: 1,
-      scale: 1,
-      duration: DURATION.item,
-      stagger: DURATION.stagger,
-      ease: EASE.expo,
+      visibility: "visible",
     },
-    "-=0.3",
+    {
+      clipPath: "circle(150% at calc(100% - 44px) 40px)",
+      duration: DURATION.menu + 0.2,
+      ease: "power3.inOut",
+    },
+    0,
+  );
+
+  tl.fromTo(
+    items,
+    { y: 40, opacity: 0, scale: 0.9, rotateX: -15 },
+    { y: 0, opacity: 1, scale: 1, rotateX: 0, duration: DURATION.item, stagger: DURATION.stagger, ease: EASE.expo },
+    0.15,
   );
 
   if (divider) {
-    tl.to(divider, { scaleX: 1, opacity: 1, duration: 0.4, ease: EASE.expo }, "-=0.2");
+    tl.fromTo(divider, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.4, ease: EASE.expo }, 0.4);
   }
 
   if (footer) {
-    tl.to(footer, { y: 0, opacity: 1, duration: DURATION.footer, ease: EASE.expo }, "-=0.3");
+    tl.fromTo(footer, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: DURATION.footer, ease: EASE.expo }, 0.45);
   }
-
-  return tl;
-}
-
-export function createBurgerMorphTimeline(
-  lineTop: HTMLElement,
-  lineMid: HTMLElement,
-  lineBot: HTMLElement,
-  button: HTMLElement,
-): gsap.core.Timeline {
-  const tl = gsap.timeline({ paused: true, defaults: { duration: DURATION.morph } });
-
-  tl.to([lineTop, lineMid, lineBot], { scaleY: 0.7, duration: 0.12, ease: EASE.bounceIn });
-  tl.to(
-    lineTop,
-    {
-      y: BURGER.translateY,
-      rotation: 45,
-      scaleY: 1,
-      backgroundColor: "#dc2626",
-      boxShadow: "0 0 8px rgba(220,38,38,0.6), 0 0 20px rgba(220,38,38,0.3)",
-      width: "100%",
-      ease: EASE.elastic,
-    },
-    "+=0.02",
-  );
-  tl.to(
-    lineMid,
-    { scaleX: 0, opacity: 0, rotation: 90, duration: DURATION.morph * 0.6, ease: EASE.smooth },
-    "<",
-  );
-  tl.to(
-    lineBot,
-    {
-      y: -BURGER.translateY,
-      rotation: -45,
-      scaleY: 1,
-      backgroundColor: "#dc2626",
-      boxShadow: "0 0 8px rgba(220,38,38,0.6), 0 0 20px rgba(220,38,38,0.3)",
-      width: "100%",
-      ease: EASE.elastic,
-    },
-    "<",
-  );
-  tl.to(
-    button,
-    {
-      backgroundColor: "rgba(220, 38, 38, 0.15)",
-      borderColor: "rgba(220, 38, 38, 0.3)",
-      duration: DURATION.glow,
-      ease: EASE.smooth,
-    },
-    "-=0.15",
-  );
 
   return tl;
 }
