@@ -29,10 +29,7 @@ html.menu-locked {
 
 body {
   min-height: 100dvh;
-  background:
-    radial-gradient(1200px 550px at 85% -10%, rgba(255, 95, 46, 0.18), transparent 70%),
-    radial-gradient(800px 500px at 10% 10%, rgba(215, 23, 23, 0.22), transparent 70%),
-    linear-gradient(160deg, #090d12 0%, #0b1119 45%, #0e1621 100%);
+  background: #090d12;
   color: var(--text-primary);
   font-family: var(--font-manrope), sans-serif;
   overflow-x: hidden;

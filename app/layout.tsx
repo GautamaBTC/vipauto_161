@@ -105,7 +105,6 @@ export default function RootLayout({
     <html lang="ru">
       <body className={`${manrope.variable} ${jetBrainsMono.variable} bg-[#12151A] pt-[80px] antialiased`}>
         <ParallaxBackground intensity={1} />
-        <div className="noise-overlay" />
         <MobileMenu />
         <div className="relative z-10">{children}</div>
         <Script id="local-business-jsonld" type="application/ld+json">

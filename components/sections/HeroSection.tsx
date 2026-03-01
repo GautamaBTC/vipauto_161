@@ -1,5 +1,4 @@
 import { Magnetic } from "@/components/effects/Magnetic";
-import { ReverseParallaxBackground } from "@/components/effects/ReverseParallaxBackground";
 import { TypeWriter } from "@/components/effects/TypeWriter";
 import { siteConfig } from "@/lib/siteConfig";
 
@@ -8,7 +7,6 @@ export function HeroSection() {
     <section id="top" className="section-padding pt-24 sm:pt-28">
       <div className="container-shell">
         <div className="card-surface relative overflow-hidden p-7 sm:p-10">
-          <ReverseParallaxBackground />
           <div className="relative grid gap-7 lg:items-center">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-secondary)]">
