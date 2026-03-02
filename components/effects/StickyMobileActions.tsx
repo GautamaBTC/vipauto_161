@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { siteConfig } from "@/lib/siteConfig";
 
 export function StickyMobileActions() {
+  const callLabel = "\u041F\u043E\u0437\u0432\u043E\u043D\u0438\u0442\u044C";
+  const bookLabel = "\u0417\u0430\u043F\u0438\u0441\u0430\u0442\u044C\u0441\u044F";
+
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -21,10 +24,10 @@ export function StickyMobileActions() {
     >
       <div className="mx-auto grid max-w-md grid-cols-2 gap-2 rounded-2xl border border-[var(--line)] bg-[rgba(5,10,20,0.94)] p-2 backdrop-blur-md">
         <a href={`tel:${siteConfig.phones[0].replace(/[^\d+]/g, "")}`} className="rounded-xl border border-[var(--line)] px-3 py-3 text-center font-semibold text-[var(--text-primary)]">
-          РџРѕР·РІРѕРЅРёС‚СЊ
+          {callLabel}
         </a>
         <a href={siteConfig.social.whatsapp} className="rounded-xl bg-[var(--accent)] px-3 py-3 text-center font-semibold text-[#050A14] shadow-[0_0_18px_rgba(204,255,0,0.28)]">
-          Р—Р°РїРёСЃР°С‚СЊСЃСЏ
+          {bookLabel}
         </a>
       </div>
     </div>
