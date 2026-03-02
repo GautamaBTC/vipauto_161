@@ -30,7 +30,7 @@ export function HeroSection() {
                 <Magnetic>
                   <a
                     href={siteConfig.social.whatsapp}
-                    className="rounded-lg bg-[var(--accent)] px-6 py-3 font-medium text-[var(--bg-primary)] shadow-[0_0_24px_rgba(204,255,0,0.28)] transition-all duration-200 hover:bg-[var(--accent)]/90 hover:shadow-[0_0_36px_rgba(204,255,0,0.35)]"
+                    className="rounded-lg bg-[var(--accent)] px-6 py-3 font-medium text-[#050A14] shadow-[0_0_24px_rgba(204,255,0,0.28)] transition-all duration-200 hover:bg-[var(--accent)]/90 hover:shadow-[0_0_36px_rgba(204,255,0,0.35)]"
                   >
                     Записаться в WhatsApp
                   </a>

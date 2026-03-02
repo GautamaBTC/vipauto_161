@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { siteConfig } from "@/lib/siteConfig";
@@ -21,14 +21,15 @@ export function StickyMobileActions() {
     >
       <div className="mx-auto grid max-w-md grid-cols-2 gap-2 rounded-2xl border border-[var(--line)] bg-[rgba(5,10,20,0.94)] p-2 backdrop-blur-md">
         <a href={`tel:${siteConfig.phones[0].replace(/[^\d+]/g, "")}`} className="rounded-xl border border-[var(--line)] px-3 py-3 text-center font-semibold text-[var(--text-primary)]">
-          Позвонить
+          РџРѕР·РІРѕРЅРёС‚СЊ
         </a>
-        <a href={siteConfig.social.whatsapp} className="rounded-xl bg-[var(--accent)] px-3 py-3 text-center font-semibold text-[var(--bg-primary)] shadow-[0_0_18px_rgba(204,255,0,0.28)]">
-          Записаться
+        <a href={siteConfig.social.whatsapp} className="rounded-xl bg-[var(--accent)] px-3 py-3 text-center font-semibold text-[#050A14] shadow-[0_0_18px_rgba(204,255,0,0.28)]">
+          Р—Р°РїРёСЃР°С‚СЊСЃСЏ
         </a>
       </div>
     </div>
   );
 }
+
 
 
