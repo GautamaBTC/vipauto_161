@@ -119,6 +119,11 @@ export default function ParallaxBackground({ intensity = 1 }: Props) {
     const mob = isMobile.current ? 0.4 : 1;
     const k = intensity * mob;
 
+    if (isMobile.current) {
+      gsap.set(containerRef.current, { opacity: 1 });
+      return;
+    }
+
     const ctx = gsap.context(() => {
       const intro = gsap.timeline({ defaults: { ease: "power3.out" } });
       intro.fromTo(containerRef.current, { opacity: 0 }, { opacity: 1, duration: 2 });
@@ -220,31 +225,48 @@ export default function ParallaxBackground({ intensity = 1 }: Props) {
 
   return (
     <div ref={containerRef} aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 h-full w-full overflow-hidden opacity-0">
-      {LAYERS.map((layer, i) => (
+      <div className="absolute inset-0 md:hidden">
+        <video
+          className="h-full w-full object-cover object-center opacity-[0.45]"
+          src="/uploads/videos/hader.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,10,20,0.22)_0%,rgba(5,10,20,0.5)_52%,rgba(5,10,20,0.84)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(0,240,255,0.16),transparent_46%),radial-gradient(circle_at_50%_95%,rgba(5,10,20,0.92),rgba(5,10,20,0.96)_76%)]" />
+        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: "linear-gradient(rgba(224,230,237,0.24) 1px, transparent 1px), linear-gradient(90deg, rgba(224,230,237,0.24) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+      </div>
+
+      <div className="hidden md:block">
+        {LAYERS.map((layer, i) => (
+          <div
+            key={layer.id}
+            ref={setLayerRef(i)}
+            className={layer.className}
+            style={{
+              ...layerStyleById[layer.id],
+              willChange: "transform",
+              filter: layer.blur ? `blur(${layer.blur}px)` : undefined,
+            }}
+          />
+        ))}
+
+        <GlowParticles />
+
         <div
-          key={layer.id}
-          ref={setLayerRef(i)}
-          className={layer.className}
+          ref={grainRef}
+          className="absolute inset-0 mix-blend-overlay opacity-[0.03]"
           style={{
-            ...layerStyleById[layer.id],
-            willChange: "transform",
-            filter: layer.blur ? `blur(${layer.blur}px)` : undefined,
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+            backgroundSize: "180px 180px",
+            willChange: "background-position",
           }}
         />
-      ))}
-
-      <GlowParticles />
-
-      <div
-        ref={grainRef}
-        className="absolute inset-0 mix-blend-overlay opacity-[0.03]"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-          backgroundSize: "180px 180px",
-          willChange: "background-position",
-        }}
-      />
+      </div>
     </div>
   );
 }
