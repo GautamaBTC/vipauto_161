@@ -472,7 +472,6 @@ export function MobileMenu() {
         </div>
       </div>
 
-      <div style={{ height: HEADER_HEIGHT }} aria-hidden />
     </>
   );
 }
