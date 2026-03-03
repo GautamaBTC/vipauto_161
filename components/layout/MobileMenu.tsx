@@ -357,21 +357,8 @@ export function MobileMenu() {
                           event.preventDefault();
                           closeMenu(item.href);
                         }}
-                        className="tap-none touch-manipulation group flex items-baseline gap-5 py-5"
+                        className="tap-none touch-manipulation group flex items-baseline py-5"
                       >
-                        <span
-                          className="select-none tabular-nums"
-                          style={{
-                            fontFamily: "var(--font-jetbrains-mono), monospace",
-                            fontSize: "0.7rem",
-                            letterSpacing: "0.2em",
-                            color: isActive ? "#ccff00" : "#00f0ff",
-                            opacity: isActive ? 1 : 0.5,
-                            transition: "color 0.3s, opacity 0.3s",
-                          }}
-                        >
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
                         <span
                           style={{
                             fontSize: "clamp(1.8rem, 7.5vw, 3.2rem)",
