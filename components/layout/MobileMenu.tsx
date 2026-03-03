@@ -293,34 +293,36 @@ export function MobileMenu() {
         <div className="relative h-[18px] w-[28px]">
           <span
             ref={lineTopRef}
-            className="absolute right-0 top-0 block h-[2.5px] rounded-full"
+            className="absolute left-0 top-0 block h-[2.5px] rounded-full"
             style={{
               width: "100%",
               background: "#ccff00",
               boxShadow: "0 0 8px rgba(204,255,0,0.25)",
               transform: "translateY(0) rotate(0)",
+              transformOrigin: "left center",
             }}
           />
           <span
             ref={lineMidRef}
-            className="absolute right-0 top-[7.5px] block h-[2.5px] rounded-full"
+            className="absolute left-0 top-[7.5px] block h-[2.5px] rounded-full"
             style={{
               width: "70%",
               background: "#e0e6ed",
               boxShadow: "0 0 8px rgba(224,230,237,0.25)",
               opacity: 1,
               transform: "scaleX(1)",
-              transformOrigin: "right center",
+              transformOrigin: "left center",
             }}
           />
           <span
             ref={lineBotRef}
-            className="absolute bottom-0 right-0 block h-[2.5px] rounded-full"
+            className="absolute bottom-0 left-0 block h-[2.5px] rounded-full"
             style={{
               width: "50%",
               background: "#00f0ff",
               boxShadow: "0 0 8px rgba(0,240,255,0.25)",
               transform: "translateY(0) rotate(0)",
+              transformOrigin: "left center",
             }}
           />
         </div>
@@ -341,7 +343,7 @@ export function MobileMenu() {
           <div className="flex min-h-dvh flex-col justify-between px-6 pb-10 pt-28">
             <nav className="flex flex-1 items-center justify-center">
               <ul className="w-full max-w-md">
-                {MENU_ITEMS.map((item) => {
+                {MENU_ITEMS.map((item, index) => {
                   const isActive = activeId === item.id;
                   return (
                     <li key={item.id}>
