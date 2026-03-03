@@ -360,6 +360,12 @@ select:focus-visible {
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
+.sticky-actions-anim {
+  transition-property: transform, opacity !important;
+  transition-duration: 460ms, 320ms !important;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1), ease !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

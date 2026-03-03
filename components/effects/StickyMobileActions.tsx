@@ -11,22 +11,28 @@ export function StickyMobileActions() {
   const phoneHref = `tel:${siteConfig.phones[0].replace(/[^\d+]/g, "")}`;
 
   const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    const rafId = window.requestAnimationFrame(() => setMounted(true));
     const onScroll = () => setVisible(window.scrollY > 260);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
+
+  const shown = mounted && visible;
 
   return (
     <div
-      className="fixed bottom-3 left-0 right-0 z-[1200] px-3 will-change-transform md:hidden"
+      className="sticky-actions-anim fixed bottom-3 left-0 right-0 z-[1200] px-3 will-change-transform md:hidden"
       style={{
-        transform: `translateY(${visible ? 0 : 64}px)`,
-        opacity: visible ? 1 : 0,
-        transition: "transform 460ms cubic-bezier(0.22,1,0.36,1), opacity 320ms ease",
-        pointerEvents: visible ? "auto" : "none",
+        transform: `translateY(${shown ? 0 : 64}px)`,
+        opacity: shown ? 1 : 0,
+        pointerEvents: shown ? "auto" : "none",
       }}
     >
       <div className="mx-auto max-w-md rounded-2xl border border-[var(--line)] bg-[rgba(5,10,20,0.95)] p-2 shadow-[0_10px_34px_rgba(0,0,0,0.45)] backdrop-blur-xl">
