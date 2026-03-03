@@ -23,10 +23,10 @@ export function Reveal({ children, className, direction = "up" }: RevealProps) {
 
     const fromVars =
       direction === "left"
-        ? { autoAlpha: 0, x: -90, y: 0 }
+        ? { autoAlpha: 0.08, x: -72, y: 0 }
         : direction === "right"
-          ? { autoAlpha: 0, x: 90, y: 0 }
-          : { autoAlpha: 0, y: 30, x: 0 };
+          ? { autoAlpha: 0.08, x: 72, y: 0 }
+          : { autoAlpha: 0.08, y: 24, x: 0 };
 
     gsap.set(node, fromVars);
 
@@ -34,14 +34,14 @@ export function Reveal({ children, className, direction = "up" }: RevealProps) {
       autoAlpha: 1,
       x: 0,
       y: 0,
-      duration: 0.9,
-      ease: "power3.out",
+      duration: 1.15,
+      ease: "expo.out",
       paused: true,
     });
 
     const trigger = ScrollTrigger.create({
       trigger: node,
-      start: "top 88%",
+      start: "top 95%",
       once: true,
       onEnter: () => tween.play(),
     });

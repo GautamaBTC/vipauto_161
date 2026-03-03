@@ -1,16 +1,49 @@
+﻿"use client";
+
+import { useRef } from "react";
+import { useReveal } from "@/hooks/useReveal";
+import { useStaggerReveal } from "@/hooks/useStaggerReveal";
+import { REVEAL_PRESETS } from "@/lib/revealPresets";
 import { services } from "@/data/services";
 
 export function ServicesSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  const isSectionRevealed = useReveal(sectionRef, {
+    ...REVEAL_PRESETS.SCALE_IN,
+    from: { scale: 0.97, autoAlpha: 0 },
+    duration: 0.5,
+    threshold: 0.15,
+  });
+
+  useStaggerReveal(sectionRef, {
+    childSelector: ".service-card",
+    from: {
+      y: 50,
+      x: (index: number) => (index % 2 === 0 ? -30 : 30),
+      autoAlpha: 0,
+    },
+    to: { y: 0, x: 0, autoAlpha: 1 },
+    stagger: 0.1,
+    duration: 0.6,
+    observe: false,
+    revealed: isSectionRevealed,
+  });
+
   return (
-    <section id="services" className="section-padding">
+    <section ref={sectionRef} id="services" className="reveal-section section-padding">
       <div className="container-shell">
-        <h2 className="text-3xl font-bold leading-tight tracking-tight md:text-4xl">Основные услуги</h2>
+        <h2 className="text-3xl font-bold leading-tight tracking-tight md:text-4xl">\u041E\u0441\u043D\u043E\u0432\u043D\u044B\u0435 \u0443\u0441\u043B\u0443\u0433\u0438</h2>
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
           {services.map((service) => (
-            <article key={service.id} className="card-surface rounded-xl p-6 md:p-8">
+            <article key={service.id} className="service-card card-surface rounded-xl p-6 md:p-8">
               <div className="flex items-center justify-between gap-3 md:gap-4">
                 <p className="text-xs font-medium uppercase tracking-widest text-[var(--text-secondary)]/75">{service.leadTime}</p>
-                {service.popular ? <span className="rounded-full bg-[var(--accent-2)]/10 px-3 py-1 text-xs font-medium uppercase tracking-widest text-[var(--accent-2)]">Популярно</span> : null}
+                {service.popular ? (
+                  <span className="rounded-full bg-[var(--accent-2)]/10 px-3 py-1 text-xs font-medium uppercase tracking-widest text-[var(--accent-2)]">
+                    {"\u041F\u043E\u043F\u0443\u043B\u044F\u0440\u043D\u043E"}
+                  </span>
+                ) : null}
               </div>
               <h3 className="mt-4 text-2xl font-semibold leading-snug md:text-3xl">{service.title}</h3>
               <p className="mt-4 text-base leading-relaxed text-[var(--text-secondary)] md:text-lg">{service.description}</p>
@@ -29,4 +62,3 @@ export function ServicesSection() {
     </section>
   );
 }
-

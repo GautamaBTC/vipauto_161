@@ -14,11 +14,11 @@ type MenuItem = {
 };
 
 const MENU_ITEMS: readonly MenuItem[] = [
-  { id: "services", href: "#services", label: "Услуги" },
-  { id: "advantages", href: "#advantages", label: "Преимущества" },
-  { id: "process", href: "#process", label: "Процесс" },
-  { id: "reviews", href: "#reviews", label: "Отзывы" },
-  { id: "contacts", href: "#contacts", label: "Контакты" },
+  { id: "services", href: "#services", label: "\u0423\u0441\u043B\u0443\u0433\u0438" },
+  { id: "advantages", href: "#advantages", label: "\u041F\u0440\u0435\u0438\u043C\u0443\u0449\u0435\u0441\u0442\u0432\u0430" },
+  { id: "process", href: "#process", label: "\u041F\u0440\u043E\u0446\u0435\u0441\u0441" },
+  { id: "reviews", href: "#reviews", label: "\u041E\u0442\u0437\u044B\u0432\u044B" },
+  { id: "contacts", href: "#contacts", label: "\u041A\u043E\u043D\u0442\u0430\u043A\u0442\u044B" },
 ] as const;
 
 const HEADER_HEIGHT = 72;
@@ -270,10 +270,10 @@ export function MobileMenu() {
           WebkitBackdropFilter: "blur(20px) saturate(180%)",
         }}
       >
-        <Link href="/" className="relative z-[1201] select-none" aria-label="VIPAuto161 Главная">
+        <Link href="/" className="relative z-[1201] select-none" aria-label="VIPAuto161 \u0413\u043B\u0430\u0432\u043D\u0430\u044F">
           <Image
             src="/images/plate-logo.svg"
-            alt="VIPАвто 161"
+            alt="VIP\u0410\u0432\u0442\u043E 161"
             width={189}
             height={51}
             className="h-[42px] w-auto"
@@ -286,7 +286,7 @@ export function MobileMenu() {
         ref={burgerRef}
         type="button"
         onClick={isOpen ? () => closeMenu() : openMenu}
-        aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
+        aria-label={isOpen ? "\u0417\u0430\u043A\u0440\u044B\u0442\u044C \u043C\u0435\u043D\u044E" : "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043C\u0435\u043D\u044E"}
         aria-expanded={isOpen}
         aria-controls="mobile-nav-dialog"
         className="tap-none touch-manipulation fixed right-5 top-5 z-[10000] flex h-11 w-11 items-center justify-center md:hidden"
@@ -336,7 +336,7 @@ export function MobileMenu() {
           ref={panelRef}
           role="dialog"
           aria-modal="true"
-          aria-label="Мобильная навигация"
+          aria-label="\u041C\u043E\u0431\u0438\u043B\u044C\u043D\u0430\u044F \u043D\u0430\u0432\u0438\u0433\u0430\u0446\u0438\u044F"
           className="absolute inset-0 overflow-y-auto bg-[#050a14]"
           onClick={(event) => {
             if (event.target === event.currentTarget) closeMenu();
@@ -403,11 +403,11 @@ export function MobileMenu() {
                 {siteConfig.phones[0]}
               </a>
 
-              <div className="mt-4 flex items-center gap-3">
+              <div className="mt-4 grid grid-cols-1 gap-2.5 sm:flex sm:items-center sm:gap-3">
                 <a
                   href={siteConfig.social.whatsapp}
                   aria-label="WhatsApp"
-                  className="tap-none touch-manipulation flex h-10 items-center gap-2 rounded-full border border-[#ccff0026] bg-[#ccff0014] px-4 transition-all duration-300 hover:border-[#ccff0059] hover:bg-[#ccff0026] hover:shadow-[0_0_20px_rgba(204,255,0,0.15)]"
+                  className="tap-none touch-manipulation flex h-10 items-center justify-center gap-2 rounded-full border border-[#ccff0026] bg-[#ccff0014] px-4 transition-all duration-300 hover:border-[#ccff0059] hover:bg-[#ccff0026] hover:shadow-[0_0_20px_rgba(204,255,0,0.15)]"
                 >
                   <svg
                     width="16"
@@ -428,7 +428,7 @@ export function MobileMenu() {
                 <a
                   href={siteConfig.social.telegram}
                   aria-label="Telegram"
-                  className="tap-none touch-manipulation flex h-10 items-center gap-2 rounded-full border border-[#00f0ff26] bg-[#00f0ff0f] px-4 transition-all duration-300 hover:border-[#00f0ff59] hover:bg-[#00f0ff1f] hover:shadow-[0_0_20px_rgba(0,240,255,0.15)]"
+                  className="tap-none touch-manipulation flex h-10 items-center justify-center gap-2 rounded-full border border-[#00f0ff26] bg-[#00f0ff0f] px-4 transition-all duration-300 hover:border-[#00f0ff59] hover:bg-[#00f0ff1f] hover:shadow-[0_0_20px_rgba(0,240,255,0.15)]"
                 >
                   <svg
                     width="16"
@@ -449,7 +449,7 @@ export function MobileMenu() {
 
                 <a
                   href={phoneHref}
-                  className="tap-none touch-manipulation ml-1 flex h-10 items-center gap-1.5 rounded-full border border-[#e0e6ed14] bg-[#e0e6ed0a] px-4 transition-all duration-300 hover:border-[#e0e6ed26] hover:bg-[#e0e6ed14]"
+                  className="tap-none touch-manipulation flex h-10 items-center justify-center gap-1.5 rounded-full border border-[#e0e6ed14] bg-[#e0e6ed0a] px-4 transition-all duration-300 hover:border-[#e0e6ed26] hover:bg-[#e0e6ed14] sm:ml-1"
                 >
                   <svg
                     width="14"
@@ -464,7 +464,7 @@ export function MobileMenu() {
                   >
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                   </svg>
-                  <span className="text-[0.72rem] font-medium text-[#9fadbc]">Позвонить</span>
+                  <span className="text-[0.72rem] font-medium text-[#9fadbc]">\u041F\u043E\u0437\u0432\u043E\u043D\u0438\u0442\u044C</span>
                 </a>
               </div>
             </div>

@@ -85,6 +85,30 @@ select:focus-visible {
   padding-block: 4rem;
 }
 
+.reveal-section {
+  visibility: hidden;
+}
+
+.reveal-section.is-revealed {
+  visibility: visible;
+}
+
+@media (max-width: 767px) {
+  .container-shell {
+    padding-inline: 0.875rem;
+  }
+
+  .section-padding {
+    padding-block: 3.25rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .section-padding {
+    padding-block: 2.75rem;
+  }
+}
+
 @media (min-width: 768px) {
   .section-padding {
     padding-block: 6rem;

@@ -28,11 +28,12 @@ export function StickyMobileActions() {
 
   return (
     <div
-      className="sticky-actions-anim fixed bottom-3 left-0 right-0 z-[1200] px-3 will-change-transform md:hidden"
+      className="sticky-actions-anim fixed left-0 right-0 z-[1200] px-3 will-change-transform md:hidden"
       style={{
         transform: `translateY(${shown ? 0 : 64}px)`,
         opacity: shown ? 1 : 0,
         pointerEvents: shown ? "auto" : "none",
+        bottom: "max(0.75rem, env(safe-area-inset-bottom))",
       }}
     >
       <div className="mx-auto max-w-md rounded-2xl border border-[var(--line)] bg-[rgba(5,10,20,0.95)] p-2 shadow-[0_10px_34px_rgba(0,0,0,0.45)] backdrop-blur-xl">

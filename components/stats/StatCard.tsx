@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@/hooks/useGSAP";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/cn";
@@ -43,7 +42,7 @@ type StatCardProps = {
   decimals?: number;
   label: string;
   accent: AccentKey;
-  index: number;
+  reveal?: boolean;
 };
 
 export function StatCard({
@@ -53,11 +52,12 @@ export function StatCard({
   decimals = 0,
   label,
   accent,
-  index,
+  reveal = false,
 }: StatCardProps) {
   const gsap = useGSAP();
   const reduced = useReducedMotion();
   const cardRef = useRef<HTMLDivElement>(null);
+  const startedRef = useRef(false);
   const { ref: valueRef, start, stop, setImmediate } = useCountUp({
     target,
     decimals,
@@ -71,8 +71,7 @@ export function StatCard({
     if (!el) return;
 
     if (reduced) {
-      gsap.set(el, { autoAlpha: 1, y: 0 });
-      setImmediate(target);
+      gsap.set(el, { y: 0 });
       return;
     }
 
@@ -87,37 +86,40 @@ export function StatCard({
     el.addEventListener("mouseenter", enter);
     el.addEventListener("mouseleave", leave);
 
-    gsap.set(el, { autoAlpha: 0, y: 40 });
-    const trigger = ScrollTrigger.create({
-      trigger: el,
-      start: "top 85%",
-      once: true,
-      onEnter: () => {
-        gsap.to(el, {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.8,
-          delay: index * 0.1,
-          ease: "expo.out",
-          onComplete: () => {
-            valueRef.current?.classList.add("shimmer-text");
-            start();
-            window.setTimeout(() => {
-              valueRef.current?.classList.remove("shimmer-text");
-            }, 2100);
-          },
-        });
-      },
-    });
-
     return () => {
-      stop();
-      trigger.kill();
       el.removeEventListener("mouseenter", enter);
       el.removeEventListener("mouseleave", leave);
       hoverTl.kill();
     };
-  }, [gsap, index, reduced, setImmediate, start, stop, target, valueRef]);
+  }, [gsap, reduced]);
+
+  useEffect(() => {
+    if (!reveal) return;
+    if (startedRef.current) return;
+
+    startedRef.current = true;
+
+    if (reduced) {
+      setImmediate(target);
+      return;
+    }
+
+    valueRef.current?.classList.add("shimmer-text");
+    start();
+    const timeoutId = window.setTimeout(() => {
+      valueRef.current?.classList.remove("shimmer-text");
+    }, 2100);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [reduced, reveal, setImmediate, start, target, valueRef]);
+
+  useEffect(() => {
+    return () => {
+      stop();
+    };
+  }, [stop]);
 
   return (
     <article

@@ -9,10 +9,11 @@ type ComparisonCardProps = {
   title: string;
   titleIcon: ReactNode;
   children: ReactNode;
+  className?: string;
 };
 
 export const ComparisonCard = forwardRef<HTMLDivElement, ComparisonCardProps>(
-  ({ variant, badge, title, titleIcon, children }, ref) => {
+  ({ variant, badge, title, titleIcon, children, className }, ref) => {
     const isVip = variant === "vip";
 
     return (
@@ -21,6 +22,7 @@ export const ComparisonCard = forwardRef<HTMLDivElement, ComparisonCardProps>(
         className={cn(
           "cmp-card group flex flex-col p-5 sm:p-8 lg:p-10",
           isVip ? "cmp-card--vip" : "cmp-card--garage",
+          className,
         )}
       >
         <div

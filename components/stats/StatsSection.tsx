@@ -1,55 +1,37 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Clock, LayoutGrid, Star, Users } from "lucide-react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@/hooks/useGSAP";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useReveal } from "@/hooks/useReveal";
+import { useStaggerReveal } from "@/hooks/useStaggerReveal";
+import { REVEAL_PRESETS } from "@/lib/revealPresets";
 import { stats } from "@/data/stats";
 import { StatCard, type AccentKey } from "@/components/stats/StatCard";
 
 const accentOrder: readonly AccentKey[] = ["red", "orange", "blue", "green", "orange"] as const;
 
 export function StatsSection() {
-  const gsap = useGSAP();
-  const reduced = useReducedMotion();
-  const headerRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    const node = headerRef.current;
-    if (!node) return;
+  const isSectionRevealed = useReveal(sectionRef, {
+    ...REVEAL_PRESETS.FADE_UP,
+    from: { ...REVEAL_PRESETS.FADE_UP.from, y: 120 },
+    duration: 0.8,
+    threshold: 0.15,
+  });
 
-    if (reduced) {
-      gsap.set(node, { autoAlpha: 1, y: 0 });
-      return;
-    }
-
-    const tween = gsap.from(node, {
-      autoAlpha: 0,
-      y: 30,
-      duration: 0.8,
-      ease: "expo.out",
-      scrollTrigger: {
-        trigger: node,
-        start: "top 85%",
-        once: true,
-      },
-    });
-
-    return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
-    };
-  }, [gsap, reduced]);
-
-  useEffect(() => {
-    return () => {
-      ScrollTrigger.refresh();
-    };
-  }, []);
+  useStaggerReveal(sectionRef, {
+    childSelector: "[data-stat-card]",
+    from: { scale: 0.8, autoAlpha: 0 },
+    to: { scale: 1, autoAlpha: 1 },
+    stagger: 0.12,
+    duration: 0.6,
+    observe: false,
+    revealed: isSectionRevealed,
+  });
 
   return (
-    <section id="stats" className="section-padding relative">
+    <section ref={sectionRef} id="stats" className="reveal-section section-padding relative">
       <div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[80px]"
@@ -60,8 +42,8 @@ export function StatsSection() {
       />
 
       <div className="container-shell relative z-10">
-        <div ref={headerRef} className="mb-14 text-center">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/15 px-5 py-2 text-[13px] font-semibold uppercase tracking-wider text-[var(--accent-2)]">
+        <div className="mb-8 text-center sm:mb-14">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/15 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--accent-2)] sm:mb-5 sm:px-5 sm:py-2 sm:text-[13px]">
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] animate-badge-pulse" />
             Наши результаты
           </div>
@@ -91,16 +73,17 @@ export function StatsSection() {
               );
 
             return (
-              <StatCard
-                key={item.id}
-                icon={icon}
-                target={item.value}
-                suffix={item.suffix}
-                decimals={item.decimals}
-                label={item.label}
-                accent={accent}
-                index={index}
-              />
+              <div key={item.id} data-stat-card>
+                <StatCard
+                  icon={icon}
+                  target={item.value}
+                  suffix={item.suffix}
+                  decimals={item.decimals}
+                  label={item.label}
+                  accent={accent}
+                  reveal={isSectionRevealed}
+                />
+              </div>
             );
           })}
         </div>

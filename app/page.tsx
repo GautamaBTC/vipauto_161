@@ -1,6 +1,5 @@
 ﻿import { StickyMobileActions } from "@/components/effects/StickyMobileActions";
 import { ParallaxSection } from "@/components/parallax/ParallaxSection";
-import { Reveal } from "@/components/effects/Reveal";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
 import { AdvantagesSection } from "@/components/sections/AdvantagesSection";
@@ -25,9 +24,7 @@ export default function Home() {
       </a>
       <ScrollProgress />
       <main id="main-content">
-        <Reveal direction="left">
-          <HeroSection />
-        </Reveal>
+        <HeroSection />
         <ParallaxSection
           className="relative"
           layers={[
@@ -55,9 +52,7 @@ export default function Home() {
             },
           ]}
         >
-          <Reveal direction="right">
-            <StatsSection />
-          </Reveal>
+          <StatsSection />
         </ParallaxSection>
         <ParallaxSection
           className="relative"
@@ -84,28 +79,14 @@ export default function Home() {
             },
           ]}
         >
-          <Reveal direction="left">
-            <CompareSection />
-          </Reveal>
+          <CompareSection />
         </ParallaxSection>
-        <Reveal direction="right">
-          <ServicesSection />
-        </Reveal>
-        <Reveal direction="left">
-          <AdvantagesSection />
-        </Reveal>
-        <Reveal direction="right">
-          <ProcessSection />
-        </Reveal>
-        <Reveal direction="left">
-          <BrandsSection />
-        </Reveal>
-        <Reveal direction="right">
-          <ReviewsSection />
-        </Reveal>
-        <Reveal direction="left">
-          <ContactSection />
-        </Reveal>
+        <ServicesSection />
+        <AdvantagesSection />
+        <ProcessSection />
+        <BrandsSection />
+        <ReviewsSection />
+        <ContactSection />
         <MultimeterSpoiler />
       </main>
       <StickyMobileActions />
@@ -113,6 +94,3 @@ export default function Home() {
     </>
   );
 }
-
-
-
