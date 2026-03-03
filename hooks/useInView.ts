@@ -5,10 +5,11 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 type InViewOptions = {
   threshold?: number;
   once?: boolean;
+  rootMargin?: string;
 };
 
 export function useInView(options: InViewOptions = {}): [RefObject<HTMLDivElement | null>, boolean] {
-  const { threshold = 0.2, once = true } = options;
+  const { threshold = 0.2, once = true, rootMargin = "0px" } = options;
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
 
@@ -25,12 +26,12 @@ export function useInView(options: InViewOptions = {}): [RefObject<HTMLDivElemen
           setInView(false);
         }
       },
-      { threshold },
+      { threshold, rootMargin },
     );
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [threshold, once]);
+  }, [threshold, once, rootMargin]);
 
   return [ref, inView];
 }

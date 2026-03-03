@@ -6,7 +6,6 @@ import { runRevealAnimation } from "@/lib/gsapPresets";
 import type { RevealDirection } from "@/lib/gsapPresets";
 import { cn } from "@/lib/cn";
 import { useInView } from "@/hooks/useInView";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 type RevealProps = {
   children: ReactNode;
@@ -15,17 +14,16 @@ type RevealProps = {
 };
 
 export function Reveal({ children, className, direction = "up" }: RevealProps) {
-  const [ref, inView] = useInView({ threshold: 0.16, once: true });
-  const reduced = useReducedMotion();
+  const [ref, inView] = useInView({ threshold: 0.28, once: true, rootMargin: "0px 0px -12% 0px" });
 
   useEffect(() => {
     const node = ref.current;
-    if (!node || !inView || reduced) return;
+    if (!node || !inView) return;
     const tween = runRevealAnimation(node, direction);
     return () => {
       tween.kill();
     };
-  }, [direction, inView, reduced, ref]);
+  }, [direction, inView, ref]);
 
   const hiddenClass =
     direction === "left"
@@ -39,7 +37,7 @@ export function Reveal({ children, className, direction = "up" }: RevealProps) {
       ref={ref}
       className={cn(
         "will-change-transform",
-        !reduced && !inView ? hiddenClass : "translate-x-0 translate-y-0 opacity-100",
+        !inView ? hiddenClass : "translate-x-0 translate-y-0 opacity-100",
         className,
       )}
     >
