@@ -370,8 +370,8 @@ export function MobileMenu() {
           }}
         >
           <div className="flex min-h-dvh flex-col justify-between px-6 pb-10 pt-28">
-            <nav className="flex flex-1 items-center">
-              <ul className="w-full">
+            <nav className="flex flex-1 items-center justify-center">
+              <ul className="w-full max-w-md">
                 {MENU_ITEMS.map((item, index) => {
                   const isActive = activeId === item.id;
                   return (
@@ -383,7 +383,7 @@ export function MobileMenu() {
                           event.preventDefault();
                           closeMenu(item.href);
                         }}
-                        className="tap-none touch-manipulation group flex items-baseline py-5"
+                        className="tap-none touch-manipulation group flex items-baseline justify-center py-5 text-center"
                       >
                         <span
                           style={{
@@ -391,18 +391,17 @@ export function MobileMenu() {
                             fontWeight: 700,
                             lineHeight: 1.1,
                             letterSpacing: "-0.02em",
-                            color: isActive ? "#ccff00" : "#e0e6ed",
-                            textShadow: isActive ? "0 0 20px rgba(204,255,0,0.2)" : "none",
-                            transition: "color 0.3s, text-shadow 0.3s",
+                            color: "#e0e6ed",
+                            transition: "opacity 0.3s",
+                            opacity: isActive ? 1 : 0.92,
                           }}
                         >
                           <span
                             className="inline-block bg-clip-text"
                             style={{
-                              backgroundImage: isActive ? "linear-gradient(90deg, #ccff00, #00f0ff)" : "none",
-                              WebkitBackgroundClip: isActive ? "text" : "unset",
-                              WebkitTextFillColor: isActive ? "transparent" : "inherit",
-                              transition: "all 0.3s ease",
+                              backgroundImage: "none",
+                              WebkitBackgroundClip: "unset",
+                              WebkitTextFillColor: "inherit",
                             }}
                           >
                             {item.label}
@@ -428,11 +427,12 @@ export function MobileMenu() {
             <div ref={footerRef} className="mt-8">
               <a
                 href={phoneHref}
-                className="tap-none inline-block"
+                className="tap-none block text-center"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono), monospace",
-                  fontSize: "0.8rem",
-                  letterSpacing: "0.12em",
+                  fontSize: "1.05rem",
+                  fontWeight: 600,
+                  letterSpacing: "0.14em",
                   color: "#9fadbc",
                   transition: "color 0.2s",
                 }}
