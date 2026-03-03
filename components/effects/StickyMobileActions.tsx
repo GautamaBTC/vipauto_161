@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { CalendarCheck2, PhoneCall } from "lucide-react";
@@ -36,7 +36,7 @@ export function StickyMobileActions() {
           </a>
           <a
             href={siteConfig.social.whatsapp}
-            className="group inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-3 py-3 font-semibold text-[#050A14] shadow-[0_0_18px_rgba(204,255,0,0.28)] transition-all duration-200 hover:bg-[var(--accent)]/92 hover:shadow-[0_0_30px_rgba(204,255,0,0.38)]"
+            className="group inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-3 py-3 font-semibold text-black shadow-[0_0_18px_rgba(204,255,0,0.28)] transition-all duration-200 hover:bg-[var(--accent)]/92 hover:shadow-[0_0_30px_rgba(204,255,0,0.38)]"
           >
             <CalendarCheck2 className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5" />
             {bookLabel}

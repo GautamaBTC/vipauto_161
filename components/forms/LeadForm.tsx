@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useMemo, useState } from "react";
 import { services } from "@/data/services";
@@ -129,7 +129,7 @@ export function LeadForm() {
       <button
         type="submit"
         disabled={formState === "loading"}
-        className="w-full rounded-lg bg-[var(--accent)] px-6 py-3 font-medium text-[#050A14] shadow-[0_0_22px_rgba(204,255,0,0.25)] transition-all duration-200 hover:bg-[var(--accent)]/90 hover:shadow-[0_0_32px_rgba(204,255,0,0.35)] disabled:opacity-75"
+        className="w-full rounded-lg bg-[var(--accent)] px-6 py-3 font-medium text-black shadow-[0_0_22px_rgba(204,255,0,0.25)] transition-all duration-200 hover:bg-[var(--accent)]/90 hover:shadow-[0_0_32px_rgba(204,255,0,0.35)] disabled:opacity-75"
       >
         {formState === "loading" ? "Отправка..." : "Отправить заявку"}
       </button>
