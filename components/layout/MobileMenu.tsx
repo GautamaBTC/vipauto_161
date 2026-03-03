@@ -27,6 +27,8 @@ export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeId, setActiveId] = useState<string>("services");
   const [glitchId, setGlitchId] = useState<string | null>(null);
+  const [phoneGlitch, setPhoneGlitch] = useState(false);
+  const [animatedPhone, setAnimatedPhone] = useState<string>("");
 
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -130,15 +132,53 @@ export function MobileMenu() {
       return;
     }
 
-    const glitchTimer = window.setInterval(() => {
-      const randomItem = MENU_ITEMS[Math.floor(Math.random() * MENU_ITEMS.length)];
-      if (!randomItem) return;
-      setGlitchId(randomItem.id);
-      window.setTimeout(() => setGlitchId((prev) => (prev === randomItem.id ? null : prev)), 260);
-    }, 3600);
+    let timerId: number | undefined;
 
-    return () => window.clearInterval(glitchTimer);
+    const tick = () => {
+      const randomItem = MENU_ITEMS[Math.floor(Math.random() * MENU_ITEMS.length)];
+      if (randomItem) {
+        setGlitchId(randomItem.id);
+        window.setTimeout(() => setGlitchId((prev) => (prev === randomItem.id ? null : prev)), 240);
+      }
+      timerId = window.setTimeout(tick, 3000 + Math.random() * 3000);
+    };
+
+    timerId = window.setTimeout(tick, 1200);
+
+    return () => {
+      if (timerId) window.clearTimeout(timerId);
+    };
   }, [isOpen]);
+
+  const preferredPhone = useMemo(
+    () => siteConfig.phones.find((phone) => phone.includes("777-70-09")) ?? siteConfig.phones[0],
+    [],
+  );
+
+  useEffect(() => {
+    if (!isOpen) {
+      setPhoneGlitch(false);
+      setAnimatedPhone(preferredPhone);
+      return;
+    }
+
+    setAnimatedPhone(preferredPhone);
+
+    const runDigits = window.setInterval(() => {
+      setAnimatedPhone((prev) => prev.replace(/(\d{2})-(\d{2})$/, `${rand2()}-${rand2()}`));
+      window.setTimeout(() => setAnimatedPhone(preferredPhone), 580);
+    }, 2000);
+
+    const runPhoneGlitch = window.setInterval(() => {
+      setPhoneGlitch(true);
+      window.setTimeout(() => setPhoneGlitch(false), 250);
+    }, 10000);
+
+    return () => {
+      window.clearInterval(runDigits);
+      window.clearInterval(runPhoneGlitch);
+    };
+  }, [isOpen, preferredPhone]);
 
   useEffect(() => {
     const top = lineTopRef.current;
@@ -302,6 +342,10 @@ export function MobileMenu() {
 
   const phoneHref = useMemo(() => `tel:${siteConfig.phones[0].replace(/[^\d+]/g, "")}`, []);
 
+  function rand2() {
+    return String(Math.floor(Math.random() * 100)).padStart(2, "0");
+  }
+
   return (
     <>
       <header
@@ -324,7 +368,7 @@ export function MobileMenu() {
         aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
         aria-expanded={isOpen}
         aria-controls="mobile-nav-dialog"
-        className="tap-none touch-manipulation fixed right-5 top-5 z-[10000] flex h-11 w-11 items-center justify-center md:hidden"
+        className="tap-none touch-manipulation fixed left-1/2 top-0 z-[10000] flex h-[72px] w-[72px] -translate-x-1/2 items-center justify-center md:hidden"
         style={{ background: "none", border: "none", outline: "none" }}
       >
         <div className="relative h-[20px] w-[34px]">
@@ -385,10 +429,11 @@ export function MobileMenu() {
             </video>
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,17,22,0.85)_0%,rgba(11,17,22,0.72)_42%,rgba(11,17,22,0.86)_100%)] backdrop-blur-[20px]" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,240,255,0.12),transparent_40%),radial-gradient(circle_at_86%_90%,rgba(204,255,0,0.12),transparent_44%)]" />
+            <div className="menu-film-grain absolute inset-0 opacity-[0.06]" />
           </div>
 
-          <div className="relative z-10 flex min-h-dvh flex-col justify-between px-6 pb-10 pt-24">
-            <nav className="flex flex-1 items-start justify-center pt-4">
+          <div className="relative z-10 flex min-h-dvh flex-col justify-between px-6 pb-10 pt-20">
+            <nav className="flex flex-1 items-start justify-center pt-2">
               <ul className="w-full max-w-md">
                 {MENU_ITEMS.map((item, index) => {
                   const isActive = activeId === item.id;
@@ -428,24 +473,24 @@ export function MobileMenu() {
             <div ref={footerRef} className="mt-8">
               <a
                 href={phoneHref}
-                className="tap-none block text-center"
+                className={`phone-number tap-none block text-center ${phoneGlitch ? "phone-glitch-active" : ""}`}
                 style={{
                   fontFamily: "var(--font-jetbrains-mono), monospace",
-                  fontSize: "1.05rem",
+                  fontSize: "1.08rem",
                   fontWeight: 600,
                   letterSpacing: "0.14em",
                   color: "#9fadbc",
                   transition: "color 0.2s",
                 }}
               >
-                {siteConfig.phones[0]}
+                {animatedPhone || preferredPhone}
               </a>
 
               <div className="mt-4 grid grid-cols-1 gap-2.5 sm:flex sm:items-center sm:gap-3">
                 <a
                   href={siteConfig.social.whatsapp}
                   aria-label="WhatsApp"
-                  className="tap-none touch-manipulation flex h-10 items-center justify-center gap-2 rounded-full border border-[#ccff0026] bg-[#ccff0014] px-4 transition-all duration-300 hover:border-[#ccff0059] hover:bg-[#ccff0026] hover:shadow-[0_0_20px_rgba(204,255,0,0.15)]"
+                  className="btn-shine tap-none touch-manipulation flex h-10 items-center justify-center gap-2 rounded-full border border-[#ccff0026] bg-[#ccff0014] px-4 transition-all duration-300 hover:border-[#ccff0059] hover:bg-[#ccff0026] hover:shadow-[0_0_20px_rgba(204,255,0,0.15)]"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccff00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                     <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
@@ -456,7 +501,7 @@ export function MobileMenu() {
                 <a
                   href={siteConfig.social.telegram}
                   aria-label="Telegram"
-                  className="tap-none touch-manipulation flex h-10 items-center justify-center gap-2 rounded-full border border-[#00f0ff26] bg-[#00f0ff0f] px-4 transition-all duration-300 hover:border-[#00f0ff59] hover:bg-[#00f0ff1f] hover:shadow-[0_0_20px_rgba(0,240,255,0.15)]"
+                  className="btn-shine tap-none touch-manipulation flex h-10 items-center justify-center gap-2 rounded-full border border-[#00f0ff26] bg-[#00f0ff0f] px-4 transition-all duration-300 hover:border-[#00f0ff59] hover:bg-[#00f0ff1f] hover:shadow-[0_0_20px_rgba(0,240,255,0.15)]"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                     <line x1="22" y1="2" x2="11" y2="13" />
@@ -467,7 +512,7 @@ export function MobileMenu() {
 
                 <a
                   href={phoneHref}
-                  className="tap-none touch-manipulation flex h-10 items-center justify-center gap-1.5 rounded-full border border-[#e0e6ed14] bg-[#e0e6ed0a] px-4 transition-all duration-300 hover:border-[#e0e6ed26] hover:bg-[#e0e6ed14] sm:ml-1"
+                  className="btn-shine tap-none touch-manipulation flex h-10 items-center justify-center gap-1.5 rounded-full border border-[#e0e6ed14] bg-[#e0e6ed0a] px-4 transition-all duration-300 hover:border-[#e0e6ed26] hover:bg-[#e0e6ed14] sm:ml-1"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9fadbc" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
