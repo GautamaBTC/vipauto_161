@@ -135,7 +135,8 @@ export function MobileMenu() {
       gsap.to(top, {
         y: 7.5,
         rotate: 45,
-        boxShadow: "0 0 14px rgba(204,255,0,0.5)",
+        background: "#e0e6ed",
+        boxShadow: "0 0 10px rgba(224,230,237,0.35)",
         duration: 0.38,
         ease: "power3.out",
       });
@@ -149,8 +150,8 @@ export function MobileMenu() {
         y: -7.5,
         rotate: -45,
         width: 28,
-        background: "#00f0ff",
-        boxShadow: "0 0 14px rgba(0,240,255,0.5)",
+        background: "#e0e6ed",
+        boxShadow: "0 0 10px rgba(224,230,237,0.35)",
         duration: 0.38,
         ease: "power3.out",
       });
@@ -160,6 +161,7 @@ export function MobileMenu() {
     gsap.to(top, {
       y: 0,
       rotate: 0,
+      background: "#ccff00",
       boxShadow: "0 0 8px rgba(204,255,0,0.25)",
       duration: 0.36,
       ease: "power3.out",
@@ -174,8 +176,8 @@ export function MobileMenu() {
       y: 0,
       rotate: 0,
       width: 14,
-      background: "linear-gradient(90deg, #ccff00, #00f0ff)",
-      boxShadow: "0 0 8px rgba(0,240,255,0.2)",
+      background: "#00f0ff",
+      boxShadow: "0 0 8px rgba(0,240,255,0.25)",
       duration: 0.36,
       ease: "power3.out",
     });
@@ -299,7 +301,7 @@ export function MobileMenu() {
               background: "#ccff00",
               boxShadow: "0 0 8px rgba(204,255,0,0.25)",
               transform: "translateY(0) rotate(0)",
-              transformOrigin: "left center",
+              transformOrigin: "center center",
             }}
           />
           <span
@@ -322,7 +324,7 @@ export function MobileMenu() {
               background: "#00f0ff",
               boxShadow: "0 0 8px rgba(0,240,255,0.25)",
               transform: "translateY(0) rotate(0)",
-              transformOrigin: "left center",
+              transformOrigin: "center center",
             }}
           />
         </div>
@@ -354,7 +356,7 @@ export function MobileMenu() {
                           event.preventDefault();
                           closeMenu(item.href);
                         }}
-                        className="tap-none touch-manipulation group flex items-baseline justify-center py-5 text-center"
+                        className="tap-none touch-manipulation group flex items-baseline justify-center py-5 text-center focus-visible:outline-none"
                       >
                         <span
                           style={{
