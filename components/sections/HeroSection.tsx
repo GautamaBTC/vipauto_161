@@ -4,7 +4,7 @@ import { siteConfig } from "@/lib/siteConfig";
 
 export function HeroSection() {
   return (
-    <section id="top" className="section-padding pt-6 md:pt-10">
+    <section id="top" className="section-padding min-h-dvh overflow-visible pt-6 md:pt-10">
       <div className="container-shell">
         <div className="card-surface relative overflow-hidden bg-[rgba(5,10,20,0.62)] p-6 md:p-8">
           <div className="pointer-events-none absolute right-4 top-4 z-[1] hidden items-center gap-2 rounded-full border border-[var(--accent-2)]/30 bg-[rgba(5,10,20,0.55)] px-3 py-1.5 text-xs font-medium uppercase tracking-widest text-[var(--accent-2)] backdrop-blur md:inline-flex">
