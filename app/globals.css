@@ -493,6 +493,10 @@ select:focus-visible {
 
 .phone-number {
   position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
   will-change: transform, opacity, text-shadow, filter;
   animation: phone-signal-pulse 2.8s ease-in-out infinite;
   text-shadow:
@@ -500,20 +504,18 @@ select:focus-visible {
     0 0 18px rgba(204, 255, 0, 0.12);
 }
 
-.phone-number::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(204, 255, 0, 0.22), transparent);
-  transform: translateX(-120%);
-  animation: phone-scanline 3.2s linear infinite;
-  pointer-events: none;
+.phone-char {
+  display: inline-block;
+  transform-origin: center;
+  transition: transform 120ms ease-out, filter 120ms ease-out, color 120ms ease-out;
 }
 
-.phone-glitch-active {
-  animation:
-    phone-signal-pulse 2.8s ease-in-out infinite,
-    phone-glitch 240ms linear 1;
+.phone-char.fisheye-active {
+  animation: fisheye-wave 210ms ease-out forwards;
+  color: #dffffc;
+  text-shadow:
+    0 0 10px rgba(204, 255, 0, 0.55),
+    0 0 14px rgba(0, 240, 255, 0.4);
 }
 
 @keyframes phone-signal-pulse {
@@ -532,31 +534,18 @@ select:focus-visible {
   }
 }
 
-@keyframes phone-scanline {
+@keyframes fisheye-wave {
   0% {
-    transform: translateX(-120%);
+    transform: scale(1) translateY(0);
+    filter: blur(0);
   }
-  35% {
-    transform: translateX(130%);
+  50% {
+    transform: scale(1.32) translateY(-2px);
+    filter: blur(0.45px) brightness(1.18);
   }
   100% {
-    transform: translateX(130%);
-  }
-}
-
-@keyframes phone-glitch {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-    filter: none;
-  }
-  30% {
-    transform: translate3d(-1px, 0, 0);
-    filter: hue-rotate(12deg);
-  }
-  65% {
-    transform: translate3d(1px, 0, 0);
-    filter: hue-rotate(-14deg);
+    transform: scale(1) translateY(0);
+    filter: blur(0);
   }
 }
 
@@ -602,5 +591,20 @@ select:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@media (max-height: 500px) {
+  .mobile-menu-content nav .menu-item {
+    font-size: clamp(1.3rem, 5.8vw, 2.1rem) !important;
+  }
+
+  .mobile-menu-content nav a {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .mobile-menu-content .phone-number {
+    font-size: 0.95rem !important;
   }
 }

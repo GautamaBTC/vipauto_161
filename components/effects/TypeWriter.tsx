@@ -19,7 +19,7 @@ export function TypeWriter({ words }: TypeWriterProps) {
     if (reduced) return;
     const word = words[wordIndex] ?? "";
     const delay =
-      !deleting && charIndex === word.length ? 950 : deleting && charIndex === 0 ? 380 : deleting ? 38 : 72;
+      !deleting && charIndex === word.length ? 1500 : deleting && charIndex === 0 ? 500 : deleting ? 38 : 72;
 
     const timeout = setTimeout(
       () => {

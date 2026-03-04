@@ -29,8 +29,7 @@ export function MobileMenu() {
   const [isBurgerVisible, setIsBurgerVisible] = useState(false);
   const [activeId, setActiveId] = useState<string>("services");
   const [glitchId, setGlitchId] = useState<string | null>(null);
-  const [phoneGlitch, setPhoneGlitch] = useState(false);
-  const [animatedPhone, setAnimatedPhone] = useState<string>("");
+  const [activePhoneCharIndex, setActivePhoneCharIndex] = useState<number>(-1);
 
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -172,33 +171,42 @@ export function MobileMenu() {
     };
   }, [isOpen]);
 
-  const preferredPhone = useMemo(
-    () => siteConfig.phones.find((phone) => phone.includes("777-70-09")) ?? siteConfig.phones[0],
-    [],
-  );
+  const preferredPhone = useMemo(() => "+7 (928) 777-70-09", []);
 
   useEffect(() => {
     if (!isOpen) {
-      setPhoneGlitch(false);
-      setAnimatedPhone(preferredPhone);
+      setActivePhoneCharIndex(-1);
       return;
     }
 
-    setAnimatedPhone(preferredPhone);
+    let frameTimer: number | undefined;
+    let cycleTimer: number | undefined;
+    let cancelled = false;
 
-    const runDigits = window.setInterval(() => {
-      setAnimatedPhone((prev) => prev.replace(/(\d{2})-(\d{2})$/, `${rand2()}-${rand2()}`));
-      window.setTimeout(() => setAnimatedPhone(preferredPhone), 580);
-    }, 2000);
+    const totalChars = preferredPhone.length;
+    const waveDuration = 1500;
+    const step = Math.max(40, Math.floor(waveDuration / Math.max(totalChars, 1)));
 
-    const runPhoneGlitch = window.setInterval(() => {
-      setPhoneGlitch(true);
-      window.setTimeout(() => setPhoneGlitch(false), 250);
-    }, 10000);
+    const runWave = () => {
+      let index = 0;
+      frameTimer = window.setInterval(() => {
+        if (cancelled) return;
+        setActivePhoneCharIndex(index);
+        index += 1;
+        if (index >= totalChars) {
+          if (frameTimer) window.clearInterval(frameTimer);
+          setActivePhoneCharIndex(-1);
+          cycleTimer = window.setTimeout(runWave, 3000);
+        }
+      }, step);
+    };
+
+    runWave();
 
     return () => {
-      window.clearInterval(runDigits);
-      window.clearInterval(runPhoneGlitch);
+      cancelled = true;
+      if (frameTimer) window.clearInterval(frameTimer);
+      if (cycleTimer) window.clearTimeout(cycleTimer);
     };
   }, [isOpen, preferredPhone]);
 
@@ -393,11 +401,7 @@ export function MobileMenu() {
     closeTlRef.current = closeTl;
   }, [isOpen, runPendingScroll]);
 
-  const phoneHref = useMemo(() => `tel:${siteConfig.phones[0].replace(/[^\d+]/g, "")}`, []);
-
-  function rand2() {
-    return String(Math.floor(Math.random() * 100)).padStart(2, "0");
-  }
+  const phoneHref = useMemo(() => `tel:${preferredPhone.replace(/[^\d+]/g, "")}`, [preferredPhone]);
 
   return (
     <>
@@ -469,7 +473,7 @@ export function MobileMenu() {
           role="dialog"
           aria-modal="true"
           aria-label="Мобильная навигация"
-          className="absolute inset-0 overflow-y-auto"
+          className="absolute inset-0 overflow-hidden"
           onClick={(event) => {
             if (event.target === event.currentTarget) closeMenu();
           }}
@@ -485,8 +489,8 @@ export function MobileMenu() {
             <div className="menu-film-grain absolute inset-0 opacity-[0.06]" />
           </div>
 
-          <div className="relative z-10 flex min-h-dvh flex-col justify-between px-6 pb-10 pt-20">
-            <nav className="flex flex-1 items-start justify-center pt-2">
+          <div className="mobile-menu-content relative z-10 flex min-h-dvh max-h-dvh flex-col justify-between overflow-hidden px-5 pt-[calc(72px+env(safe-area-inset-top))] pb-[calc(16px+env(safe-area-inset-bottom))]">
+            <nav className="flex flex-1 items-start justify-center pt-1">
               <ul className="w-full max-w-md">
                 {MENU_ITEMS.map((item, index) => {
                   const isActive = activeId === item.id;
@@ -500,7 +504,7 @@ export function MobileMenu() {
                           event.preventDefault();
                           closeMenu(item.href);
                         }}
-                        className="tap-none touch-manipulation group flex items-baseline justify-center py-5 text-center focus-visible:outline-none"
+                        className="tap-none touch-manipulation group flex items-baseline justify-center py-[clamp(10px,2.3vh,20px)] text-center focus-visible:outline-none"
                       >
                         <span
                           className={`menu-item ${isGlitching ? "glitch-active" : ""}`}
@@ -530,7 +534,7 @@ export function MobileMenu() {
               </p>
               <a
                 href={phoneHref}
-                className={`phone-number tap-none block text-center ${phoneGlitch ? "phone-glitch-active" : ""}`}
+                className="phone-number tap-none block text-center"
                 style={{
                   fontFamily: "var(--font-jetbrains-mono), monospace",
                   fontSize: "1.08rem",
@@ -540,7 +544,15 @@ export function MobileMenu() {
                   transition: "color 0.2s",
                 }}
               >
-                {animatedPhone || preferredPhone}
+                {preferredPhone.split("").map((char, index) => (
+                  <span
+                    key={`${char}-${index}`}
+                    className={`phone-char ${index === activePhoneCharIndex ? "fisheye-active" : ""}`}
+                    aria-hidden={char === " "}
+                  >
+                    {char === " " ? "\u00A0" : char}
+                  </span>
+                ))}
               </a>
 
               <div className="mt-4 grid grid-cols-1 gap-2.5 sm:flex sm:items-center sm:gap-3">
