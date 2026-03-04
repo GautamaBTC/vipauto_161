@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { gsap } from "gsap";
 import { siteConfig } from "@/lib/siteConfig";
 import { useLockScroll } from "@/hooks/useLockScroll";
@@ -448,40 +447,51 @@ export function MobileMenu() {
   return (
     <>
       <header
-        className="fixed left-0 right-0 top-0 z-[1200] flex h-[80px] items-center px-5 md:hidden"
+        className="fixed left-0 right-0 top-0 z-[1200] flex h-[80px] items-center justify-center px-5 md:hidden"
         style={{
           background: "rgba(5,10,20,0.8)",
           backdropFilter: "blur(20px) saturate(180%)",
           WebkitBackdropFilter: "blur(20px) saturate(180%)",
         }}
       >
-        <div className="header-phone-wrapper flex flex-1 items-center justify-start">
-          <a
-            href={phoneHref}
-            className="phone-number header-phone tap-none relative z-[1201] flex items-center whitespace-nowrap text-white"
-            style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-            aria-label={`Позвонить ${HEADER_PHONE}`}
-          >
-            {HEADER_PHONE_CHARS.map((char, index) => (
-              <span
-                key={`${char}-${index}`}
-                className={char === " " ? "phone-char-space" : `phone-char digit ${index === activePhoneCharIndex ? "fisheye-active" : ""}`}
-              >
-                {char === " " ? "\u00A0" : char}
-              </span>
-            ))}
-          </a>
-        </div>
-
         <Link
           href="/"
           className="header-logo pointer-events-auto absolute left-1/2 top-1/2 z-[1201] -translate-x-1/2 -translate-y-1/2 select-none"
           aria-label="VIPAuto161 Главная"
         >
-          <Image src="/images/plate-logo.svg" alt="VIPАвто 161" width={189} height={51} className="h-[34px] w-auto max-w-[120px]" priority />
+          <svg viewBox="0 0 280 56" className="h-[44px] w-auto max-w-[190px]" role="img" aria-label="VIPАвто 161">
+            <defs>
+              <filter id="vipGlow" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="2.2" floodColor="#ff5500" floodOpacity="0.55" />
+              </filter>
+            </defs>
+            <g transform="translate(8 38)">
+              <text
+                x="0"
+                y="0"
+                fill="#ff5500"
+                filter="url(#vipGlow)"
+                fontFamily="Arial Black, Impact, sans-serif"
+                fontSize="32"
+                fontWeight="900"
+                letterSpacing="1.2"
+              >
+                VIP
+              </text>
+              <text
+                x="94"
+                y="0"
+                fill="#ffffff"
+                fontFamily="Arial Black, Impact, sans-serif"
+                fontSize="30"
+                fontWeight="800"
+                letterSpacing="0.8"
+              >
+                Авто
+              </text>
+            </g>
+          </svg>
         </Link>
-
-        <div className="header-burger-wrapper flex flex-1 items-center justify-end" />
       </header>
 
       <button
@@ -582,7 +592,7 @@ export function MobileMenu() {
                         <span
                           className={`menu-item ${isGlitching ? "glitch-active" : ""}`}
                           style={{
-                            fontSize: "clamp(2rem, 8vw, 2.8rem)",
+                            fontSize: "clamp(1.25rem, 4.8vw, 1.5rem)",
                             fontWeight: 300,
                             lineHeight: 1.1,
                             letterSpacing: "-0.01em",
@@ -604,6 +614,22 @@ export function MobileMenu() {
               <p className="mb-3 max-w-[38ch] text-left text-[12px] leading-relaxed tracking-[0.04em] text-[var(--text-secondary)]/84">
                 Премиальный центр автоэлектрики. Диагностика, StarLine, автосвет и сложные электрические случаи.
               </p>
+
+              <a
+                href={phoneHref}
+                className="menu-phone phone-number tap-none mb-3 block text-left text-white"
+                style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
+                aria-label={`Позвонить ${HEADER_PHONE}`}
+              >
+                {HEADER_PHONE_CHARS.map((char, index) => (
+                  <span
+                    key={`${char}-${index}`}
+                    className={char === " " ? "phone-char-space" : `phone-char digit ${index === activePhoneCharIndex ? "fisheye-active" : ""}`}
+                  >
+                    {char === " " ? "\u00A0" : char}
+                  </span>
+                ))}
+              </a>
 
               <div className="mt-3 grid grid-cols-2 gap-2.5">
                 <a

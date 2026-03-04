@@ -31,7 +31,7 @@ export function HeroSection() {
                 Официальный дилер StarLine
               </div>
               <p className="mt-4 text-sm leading-normal text-[var(--text-secondary)]/75">
-                <TypeWriter words={["Диагностика", "StarLine", "Автосвет", "Ремонт проводки", "Сложные электрические случаи"]} />
+                <TypeWriter words={["Диагностика", "StarLine", "Автосвет", "Ремонт проводки"]} />
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-4">
                 <Magnetic>

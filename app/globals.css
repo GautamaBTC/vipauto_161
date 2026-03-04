@@ -522,6 +522,14 @@ select:focus-visible {
   letter-spacing: 0.01em;
 }
 
+.menu-phone {
+  font-size: clamp(1.5rem, 5vw, 2.2rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
 .phone-char.fisheye-active {
   animation: fisheye-wave 210ms ease-out forwards;
   color: #dffffc;
