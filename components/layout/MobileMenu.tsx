@@ -23,6 +23,26 @@ const MENU_ITEMS: readonly MenuItem[] = [
 ] as const;
 
 const HEADER_HEIGHT = 72;
+const HEADER_PHONE = "+7 (928) 7777-009";
+const HEADER_PHONE_CHARS = [
+  "+",
+  "7",
+  " ",
+  "(",
+  "9",
+  "2",
+  "8",
+  ")",
+  " ",
+  "7",
+  "7",
+  "7",
+  "7",
+  "-",
+  "0",
+  "0",
+  "9",
+] as const;
 
 export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -173,29 +193,22 @@ export function MobileMenu() {
     };
   }, [isOpen]);
 
-  const preferredPhone = useMemo(() => "+7 (928) 777-70-09", []);
-
   useEffect(() => {
-    if (!isOpen) {
-      setActivePhoneCharIndex(-1);
-      return;
-    }
-
     let frameTimer: number | undefined;
     let cycleTimer: number | undefined;
     let cancelled = false;
 
-    const totalChars = preferredPhone.length;
+    const activeIndices = HEADER_PHONE_CHARS.map((char, index) => ({ char, index })).filter((item) => item.char !== " ");
     const waveDuration = 1500;
-    const step = Math.max(40, Math.floor(waveDuration / Math.max(totalChars, 1)));
+    const step = Math.max(60, Math.floor(waveDuration / Math.max(activeIndices.length, 1)));
 
     const runWave = () => {
       let index = 0;
       frameTimer = window.setInterval(() => {
         if (cancelled) return;
-        setActivePhoneCharIndex(index);
+        setActivePhoneCharIndex(activeIndices[index]?.index ?? -1);
         index += 1;
-        if (index >= totalChars) {
+        if (index >= activeIndices.length) {
           if (frameTimer) window.clearInterval(frameTimer);
           setActivePhoneCharIndex(-1);
           cycleTimer = window.setTimeout(runWave, 3000);
@@ -210,7 +223,7 @@ export function MobileMenu() {
       if (frameTimer) window.clearInterval(frameTimer);
       if (cycleTimer) window.clearTimeout(cycleTimer);
     };
-  }, [isOpen, preferredPhone]);
+  }, []);
 
   useEffect(() => {
     const top = lineTopRef.current;
@@ -403,7 +416,7 @@ export function MobileMenu() {
     closeTlRef.current = closeTl;
   }, [isOpen, runPendingScroll]);
 
-  const phoneHref = useMemo(() => `tel:${preferredPhone.replace(/[^\d+]/g, "")}`, [preferredPhone]);
+  const phoneHref = useMemo(() => `tel:${HEADER_PHONE.replace(/[^\d+]/g, "")}`, []);
 
   useEffect(() => {
     if (!isOpen) {
@@ -435,65 +448,80 @@ export function MobileMenu() {
   return (
     <>
       <header
-        className="fixed left-0 right-0 top-0 z-[1200] flex h-[72px] items-center justify-between px-5 md:hidden"
+        className="fixed left-0 right-0 top-0 z-[1200] grid h-[72px] grid-cols-[1fr_auto_1fr] items-center px-5 md:hidden"
         style={{
           background: "rgba(5,10,20,0.8)",
           backdropFilter: "blur(20px) saturate(180%)",
           WebkitBackdropFilter: "blur(20px) saturate(180%)",
         }}
       >
-        <Link href="/" className="relative z-[1201] select-none" aria-label="VIPAuto161 Главная">
+        <a
+          href={phoneHref}
+          className="phone-number tap-none relative z-[1201] block justify-self-start text-[11px] font-medium tracking-[0.03em] text-[#c7d1dd]"
+          style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
+          aria-label={`Позвонить ${HEADER_PHONE}`}
+        >
+          {HEADER_PHONE_CHARS.map((char, index) => (
+            <span
+              key={`${char}-${index}`}
+              className={char === " " ? "phone-char-space" : `phone-char digit ${index === activePhoneCharIndex ? "fisheye-active" : ""}`}
+            >
+              {char === " " ? "\u00A0" : char}
+            </span>
+          ))}
+        </a>
+
+        <Link href="/" className="relative z-[1201] col-start-2 row-start-1 select-none justify-self-center" aria-label="VIPAuto161 Главная">
           <Image src="/images/plate-logo.svg" alt="VIPАвто 161" width={189} height={51} className="h-[42px] w-auto" priority />
         </Link>
+        <button
+          ref={burgerRef}
+          type="button"
+          onClick={isOpen ? () => closeMenu() : openMenu}
+          aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
+          aria-expanded={isOpen}
+          aria-controls="mobile-nav-dialog"
+          className={`tap-none touch-manipulation relative z-[1201] col-start-3 row-start-1 flex h-[80px] w-[84px] items-center justify-self-end transition-opacity duration-300 ${isBurgerVisible ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
+          style={{ background: "none", border: "none", outline: "none" }}
+        >
+          <div className="relative ml-auto h-[22px] w-[38px]">
+            <span
+              ref={lineTopRef}
+              className="absolute left-0 top-0 block h-[1.25px] rounded-[2px]"
+              style={{
+                width: "100%",
+                background: "#ccff00",
+                boxShadow: "0 0 8px rgba(204,255,0,0.25)",
+                transform: "translateY(0) rotate(0)",
+                transformOrigin: "center center",
+              }}
+            />
+            <span
+              ref={lineMidRef}
+              className="absolute left-0 top-[10px] block h-[1.25px] rounded-[2px]"
+              style={{
+                width: "72%",
+                background: "linear-gradient(90deg, #ccff00 0%, #00f0ff 100%)",
+                boxShadow: "0 0 8px rgba(224,230,237,0.25)",
+                opacity: 1,
+                transform: "scaleX(1)",
+                transformOrigin: "left center",
+              }}
+            />
+            <span
+              ref={lineBotRef}
+              className="absolute bottom-0 left-0 block h-[1.25px] rounded-[2px]"
+              style={{
+                width: "50%",
+                background: "#00f0ff",
+                boxShadow: "0 0 8px rgba(0,240,255,0.25)",
+                transform: "translateY(0) rotate(0)",
+                transformOrigin: "center center",
+              }}
+            />
+          </div>
+        </button>
       </header>
-
-      <button
-        ref={burgerRef}
-        type="button"
-        onClick={isOpen ? () => closeMenu() : openMenu}
-        aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
-        aria-expanded={isOpen}
-        aria-controls="mobile-nav-dialog"
-        className={`tap-none touch-manipulation fixed right-5 top-0 z-[10000] flex h-[80px] w-[84px] items-center justify-end transition-opacity duration-300 md:hidden ${isBurgerVisible ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
-        style={{ background: "none", border: "none", outline: "none" }}
-      >
-        <div className="relative h-[22px] w-[38px]">
-          <span
-            ref={lineTopRef}
-            className="absolute left-0 top-0 block h-[1.25px] rounded-[2px]"
-            style={{
-              width: "100%",
-              background: "#ccff00",
-              boxShadow: "0 0 8px rgba(204,255,0,0.25)",
-              transform: "translateY(0) rotate(0)",
-              transformOrigin: "center center",
-            }}
-          />
-          <span
-            ref={lineMidRef}
-            className="absolute left-0 top-[10px] block h-[1.25px] rounded-[2px]"
-            style={{
-              width: "72%",
-              background: "linear-gradient(90deg, #ccff00 0%, #00f0ff 100%)",
-              boxShadow: "0 0 8px rgba(224,230,237,0.25)",
-              opacity: 1,
-              transform: "scaleX(1)",
-              transformOrigin: "left center",
-            }}
-          />
-          <span
-            ref={lineBotRef}
-            className="absolute bottom-0 left-0 block h-[1.25px] rounded-[2px]"
-            style={{
-              width: "50%",
-              background: "#00f0ff",
-              boxShadow: "0 0 8px rgba(0,240,255,0.25)",
-              transform: "translateY(0) rotate(0)",
-              transformOrigin: "center center",
-            }}
-          />
-        </div>
-      </button>
 
       <div ref={overlayRef} className="pointer-events-none invisible fixed inset-0 z-[9999] md:hidden" aria-hidden={!isOpen}>
         <div
@@ -540,12 +568,12 @@ export function MobileMenu() {
                           event.preventDefault();
                           closeMenu(item.href);
                         }}
-                        className="tap-none touch-manipulation group flex items-baseline justify-center py-[clamp(6px,1.6vh,12px)] text-center focus-visible:outline-none"
+                        className="tap-none touch-manipulation group flex items-baseline justify-center py-[clamp(10px,2vh,18px)] text-center focus-visible:outline-none"
                       >
                         <span
                           className={`menu-item ${isGlitching ? "glitch-active" : ""}`}
                           style={{
-                            fontSize: "clamp(1rem, 3.5vw, 1.4rem)",
+                            fontSize: "clamp(1.1rem, 4vw, 1.4rem)",
                             fontWeight: 300,
                             lineHeight: 1.1,
                             letterSpacing: "-0.01em",
@@ -565,31 +593,8 @@ export function MobileMenu() {
 
             <div ref={footerRef} className="mt-3">
               <p className="mb-2 max-w-[34ch] text-left text-[11px] leading-relaxed tracking-[0.04em] text-[var(--text-secondary)]/82">
-                Премиальный центр автоэлектрики. Диагностика, StarLine, автосвет, кодирование блоков и сложные
-                электрические случаи.
+                Премиальный центр автоэлектрики. Диагностика, StarLine, автосвет и сложные электрические случаи.
               </p>
-              <a
-                href={phoneHref}
-                className="phone-number tap-none block text-left"
-                style={{
-                  fontFamily: "var(--font-jetbrains-mono), monospace",
-                  fontSize: "clamp(0.86rem, 2.8vw, 1rem)",
-                  fontWeight: 600,
-                  letterSpacing: "0.1em",
-                  color: "#9fadbc",
-                  transition: "color 0.2s",
-                }}
-              >
-                {preferredPhone.split("").map((char, index) => (
-                  <span
-                    key={`${char}-${index}`}
-                    className={`phone-char ${index === activePhoneCharIndex ? "fisheye-active" : ""}`}
-                    aria-hidden={char === " "}
-                  >
-                    {char === " " ? "\u00A0" : char}
-                  </span>
-                ))}
-              </a>
 
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <a

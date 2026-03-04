@@ -25,14 +25,13 @@ export function HeroSection() {
                 Один из старейших сервисов автоэлектрики в Шахтах.
               </p>
               <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--text-secondary)] sm:text-base md:text-lg">
-                Премиальный центр автоэлектрики. Диагностика, StarLine, автосвет, кодирование блоков и сложные
-                электрические случаи.
+                Премиальный центр автоэлектрики. Диагностика, StarLine, автосвет и сложные электрические случаи.
               </p>
               <div className="mt-4 inline-flex max-w-full items-center rounded-full border border-[var(--accent-2)]/25 bg-[var(--accent-2)]/10 px-3 py-1 text-[11px] font-medium uppercase tracking-widest text-[var(--accent-2)] sm:text-xs">
                 Официальный дилер StarLine
               </div>
               <p className="mt-4 text-sm leading-normal text-[var(--text-secondary)]/75">
-                <TypeWriter words={["Диагностика", "StarLine", "Автосвет", "Кодирование блоков", "Сложные случаи"]} />
+                <TypeWriter words={["Диагностика", "StarLine", "Автосвет", "Ремонт проводки", "Сложные электрические случаи"]} />
               </p>
               <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-4">
                 <Magnetic>

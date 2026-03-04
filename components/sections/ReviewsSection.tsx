@@ -38,7 +38,7 @@ export function ReviewsSection() {
           </p>
         </div>
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
-          {reviews.map((review) => (
+          {reviews.filter((review) => review.id !== "r5").map((review) => (
             <article key={review.id} className="review-card card-surface rounded-xl p-6 md:p-8">
               <p className="text-sm leading-normal text-[var(--text-secondary)]/75">
                 {"★".repeat(review.rating)} <span className="ml-1">{review.car}</span>

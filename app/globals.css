@@ -494,7 +494,7 @@ select:focus-visible {
 .phone-number {
   position: relative;
   display: inline-flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 0;
   will-change: transform, opacity, text-shadow, filter;
@@ -508,6 +508,11 @@ select:focus-visible {
   display: inline-block;
   transform-origin: center;
   transition: transform 120ms ease-out, filter 120ms ease-out, color 120ms ease-out;
+}
+
+.phone-char-space {
+  display: inline-block;
+  width: 0.45em;
 }
 
 .phone-char.fisheye-active {
@@ -596,7 +601,7 @@ select:focus-visible {
 
 @media (max-height: 500px) {
   .mobile-menu-content nav .menu-item {
-    font-size: clamp(1.3rem, 5.8vw, 2.1rem) !important;
+    font-size: clamp(1rem, 4.2vw, 1.25rem) !important;
   }
 
   .mobile-menu-content nav a {
