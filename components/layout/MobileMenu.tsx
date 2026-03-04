@@ -539,7 +539,7 @@ export function MobileMenu() {
               transformOrigin: "top center",
             }}
           >
-            <div className="mb-1 flex items-center justify-end pl-14">
+            <div className="-mt-1 mb-1 flex h-[80px] items-center justify-end pl-14">
               <a
                 href={phoneHref}
                 className="phone-number tap-none mr-auto block text-[12px] font-medium tracking-[0.03em] text-[#c7d1dd]"
