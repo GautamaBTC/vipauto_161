@@ -36,7 +36,7 @@ export function StickyMobileActions() {
         bottom: "max(0.75rem, env(safe-area-inset-bottom))",
       }}
     >
-      <div className="mx-auto max-w-md rounded-2xl border border-[var(--line)] bg-[rgba(5,10,20,0.95)] p-2 shadow-[0_10px_34px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+      <div className="mx-auto max-w-md rounded-2xl border border-zinc-800 bg-[rgba(5,10,20,0.95)] p-2 shadow-[0_10px_34px_rgba(0,0,0,0.45)] backdrop-blur-xl">
         <div className="grid grid-cols-2 gap-2">
           <a
             href={phoneHref}
@@ -48,13 +48,12 @@ export function StickyMobileActions() {
           <a
             href={siteConfig.social.whatsapp}
             className="group inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-3 py-3 font-semibold text-black shadow-[0_0_18px_rgba(204,255,0,0.28)] transition-all duration-200 hover:bg-[var(--accent)]/92 hover:text-black hover:shadow-[0_0_30px_rgba(204,255,0,0.38)]"
-            style={{ color: "#0b0b0b", WebkitTextFillColor: "#0b0b0b" }}
           >
             <CalendarCheck2 className="h-4 w-4 text-black transition-transform duration-200 group-hover:-translate-y-0.5" />
             {bookLabel}
           </a>
         </div>
-        <p className="px-1 pt-2 text-center text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--text-secondary)]/80">{quickActionsLabel}</p>
+        <p className="px-1 pt-2 text-center text-xs font-medium uppercase tracking-widest text-zinc-500">{quickActionsLabel}</p>
       </div>
       <div className="pointer-events-none mx-auto mt-1 h-px max-w-sm bg-gradient-to-r from-transparent via-[var(--accent-2)]/45 to-transparent opacity-70" />
     </div>

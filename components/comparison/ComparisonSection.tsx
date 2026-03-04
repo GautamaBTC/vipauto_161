@@ -91,7 +91,7 @@ export function ComparisonSection() {
     <section
       ref={sectionRef}
       id="compare"
-      className="reveal-section relative mx-auto w-full max-w-[1200px] px-4 py-12 sm:px-6 sm:py-24 lg:py-28"
+      className="reveal-section section-padding relative mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8"
     >
       <div
         aria-hidden
@@ -104,25 +104,25 @@ export function ComparisonSection() {
         style={{ background: "radial-gradient(ellipse, rgba(204,255,0,0.1) 0%, transparent 70%)" }}
       />
 
-      <div className="relative z-10 mb-8 text-center sm:mb-14">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/15 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--accent-2)] sm:mb-5 sm:px-5 sm:py-2 sm:text-[13px]">
+      <div className="relative z-10 mb-8 text-center md:mb-12">
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/15 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-[var(--accent-2)] md:mb-6">
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] animate-badge-pulse" />
           {"Сравнение"}
         </div>
 
-        <h2 className="text-[clamp(22px,5vw,44px)] font-bold leading-tight tracking-tight text-gray-100">
-          <span className="text-[var(--text-secondary)]">{"Обычный гараж"}</span>{" "}
-          <span className="mx-1 text-white/20 sm:mx-2">vs</span>{" "}
+        <h2 className="text-3xl font-bold leading-tight tracking-tight text-zinc-100 md:text-4xl">
+          <span className="text-zinc-400">{"Обычный гараж"}</span>{" "}
+          <span className="mx-1 text-zinc-600 sm:mx-2">vs</span>{" "}
           <span className="bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] bg-clip-text text-transparent">VIPАвто</span>
         </h2>
 
-        <p className="mx-auto mt-3 max-w-lg text-[13px] leading-relaxed text-white/40 sm:mt-4 sm:text-[15px]">
+        <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-zinc-400 md:text-lg">
           {"Чем профессиональный подход отличается от привычного ремонта без диагностики."}
         </p>
       </div>
 
       <div className="relative z-10">
-        <div className="grid grid-cols-1 items-stretch gap-4 sm:gap-5 lg:grid-cols-[1fr_auto_1fr]">
+        <div className="grid grid-cols-1 items-stretch gap-6 md:gap-8 lg:grid-cols-[1fr_auto_1fr]">
           <ComparisonCard
             variant="garage"
             badge={"Гаражный подход"}

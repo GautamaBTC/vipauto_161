@@ -27,7 +27,7 @@ export function ComparisonItem({ icon, text, variant }: ComparisonItemProps) {
       >
         {icon}
       </div>
-      <p className={cn("pt-1 text-sm leading-relaxed sm:pt-1.5 sm:text-[15px]", isPositive ? "text-white/85" : "text-white/60")}>
+      <p className={cn("pt-1 text-base leading-relaxed md:text-lg", isPositive ? "text-zinc-300" : "text-zinc-500")}>
         {text}
       </p>
     </div>

@@ -146,18 +146,18 @@ export function StatCard({
       <div className="mb-2 flex items-baseline gap-0.5 max-sm:mb-0.5">
         <span
           ref={valueRef}
-          className="font-mono text-[clamp(36px,4vw,52px)] font-extrabold leading-none tracking-tight text-gray-100 tabular-nums max-sm:text-[32px]"
+          className="font-mono text-5xl font-extrabold leading-none tracking-tight text-zinc-100 tabular-nums md:text-6xl"
         >
           0
         </span>
         {suffix ? (
-          <span className={cn("text-[clamp(20px,2.5vw,28px)] font-bold leading-none max-sm:text-lg", a.suffixColor)}>
+          <span className={cn("text-2xl font-bold leading-none md:text-3xl", a.suffixColor)}>
             {suffix}
           </span>
         ) : null}
       </div>
 
-      <p className="text-sm leading-relaxed tracking-wide text-white/55 max-sm:text-[13px]">{label}</p>
+      <p className="text-sm leading-relaxed tracking-wide text-zinc-500 md:text-base">{label}</p>
     </article>
   );
 }

@@ -67,7 +67,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#050A14",
+  themeColor: "#09090b",
 };
 
 const localBusinessJsonLd = {
@@ -109,7 +109,7 @@ export default function RootLayout({
 
   return (
     <html lang="ru">
-      <body className={`${manrope.variable} ${jetBrainsMono.variable} bg-[var(--bg-primary)] pt-[80px] antialiased text-[var(--text-primary)]`}>
+      <body className={`${manrope.variable} ${jetBrainsMono.variable} bg-[var(--bg-primary)] pt-20 antialiased text-[var(--text-primary)]`}>
         <div className="boot-ui">
           <ParallaxBackground intensity={1} />
           <MobileMenu />

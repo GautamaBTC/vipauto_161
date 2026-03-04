@@ -43,7 +43,7 @@ export const ComparisonCard = forwardRef<HTMLDivElement, ComparisonCardProps>(
 
         <div
           className={cn(
-            "mb-5 inline-flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider sm:mb-6 sm:text-xs",
+            "mb-6 inline-flex w-fit items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-widest",
             isVip
               ? "border border-[var(--accent)]/35 bg-[var(--accent)]/15 text-[var(--accent)]"
               : "border border-[var(--accent-2)]/25 bg-[var(--accent-2)]/12 text-[var(--accent-2)]/80",
@@ -53,7 +53,7 @@ export const ComparisonCard = forwardRef<HTMLDivElement, ComparisonCardProps>(
           {badge}
         </div>
 
-        <div className="mb-6 flex items-center gap-3 sm:mb-8">
+        <div className="mb-8 flex items-center gap-3">
           <div
             className={cn(
               "flex h-10 w-10 items-center justify-center rounded-2xl transition-all duration-400 group-hover:scale-110 sm:h-11 sm:w-11",
@@ -62,7 +62,7 @@ export const ComparisonCard = forwardRef<HTMLDivElement, ComparisonCardProps>(
           >
             {titleIcon}
           </div>
-          <h3 className={cn("text-lg font-bold tracking-tight sm:text-xl lg:text-2xl", isVip ? "text-white" : "text-white/60")}>
+          <h3 className={cn("text-2xl font-semibold leading-snug md:text-3xl", isVip ? "text-zinc-100" : "text-zinc-400")}>
             {title}
           </h3>
         </div>

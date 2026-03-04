@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { siteConfig } from "@/lib/siteConfig";
 
 export const metadata: Metadata = {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 const sections = [
   ["1. Общие положения", "Настоящая политика определяет порядок обработки персональных данных пользователей сайта VIPАвто."],
-  ["2. Какие данные собираются", "Имя, номер телефона, содержание обращения, технические данные cookies и статистика Яндекс.Метрики."],
+  ["2. Какие данные собираются", "Имя, номер телефона, содержание обращения, технические данные cookies и статистика аналитических систем."],
   ["3. Цели обработки", "Обратная связь, запись на диагностику и обслуживание, информирование о статусе заявки."],
   ["4. Правовые основания", "Обработка выполняется на основании согласия пользователя и требований действующего законодательства РФ."],
   ["5. Хранение и защита", "Данные хранятся в защищенной инфраструктуре и используются только для заявленных целей."],
@@ -23,21 +23,23 @@ const sections = [
     `Оператор: ИП, ОГРНИП ${siteConfig.ogrnip}, ИНН ${siteConfig.inn}, ОКПО ${siteConfig.okpo}. Дата регистрации: ${siteConfig.registrationDate}. Адрес: ${siteConfig.address}. Email: ${siteConfig.email}.`,
   ],
   ["10. Изменения политики", "Политика может обновляться. Актуальная версия всегда размещается на данной странице."],
-];
+] as const;
 
 export default function PrivacyPage() {
   return (
     <main className="section-padding pt-24">
       <div className="container-shell">
-        <p className="text-sm text-[var(--text-secondary)]">Главная / Политика конфиденциальности</p>
-        <article className="card-surface mt-4 max-w-3xl p-6 sm:p-8">
-          <h1 className="text-3xl font-bold">Политика конфиденциальности</h1>
-          {sections.map(([title, body]) => (
-            <section key={title} className="mt-6">
-              <h2 className="text-xl font-semibold">{title}</h2>
-              <p className="mt-2 text-[var(--text-secondary)]">{body}</p>
-            </section>
-          ))}
+        <p className="text-sm text-zinc-500">Главная / Политика конфиденциальности</p>
+        <article className="card-surface mt-4 max-w-3xl p-6 md:p-8">
+          <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-5xl">Политика конфиденциальности</h1>
+          <div className="mt-6 space-y-6 md:space-y-8">
+            {sections.map(([title, body]) => (
+              <section key={title}>
+                <h2 className="text-2xl font-semibold leading-snug md:text-3xl">{title}</h2>
+                <p className="mt-2 text-base leading-relaxed text-zinc-400 md:text-lg">{body}</p>
+              </section>
+            ))}
+          </div>
         </article>
       </div>
     </main>

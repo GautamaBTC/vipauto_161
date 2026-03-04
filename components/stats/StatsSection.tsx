@@ -42,13 +42,13 @@ export function StatsSection() {
       />
 
       <div className="container-shell relative z-10">
-        <div className="mb-8 text-center sm:mb-14">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/15 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--accent-2)] sm:mb-5 sm:px-5 sm:py-2 sm:text-[13px]">
+        <div className="mb-8 text-center md:mb-12">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/15 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-[var(--accent-2)] md:mb-6">
             <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)] animate-badge-pulse" />
             Наши результаты
           </div>
 
-          <h2 className="text-[clamp(28px,5vw,44px)] font-bold leading-tight tracking-tight text-gray-100">
+          <h2 className="text-3xl font-bold leading-tight tracking-tight text-zinc-100 md:text-4xl">
             Цифры, которые{" "}
             <span className="bg-gradient-to-br from-[var(--accent)] to-[var(--accent-2)] bg-clip-text text-transparent">
               говорят за нас
@@ -56,7 +56,7 @@ export function StatsSection() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-5">
           {stats.map((item, index) => {
             const accent = accentOrder[index % accentOrder.length];
             const icon =

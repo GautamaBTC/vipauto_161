@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { siteConfig } from "@/lib/siteConfig";
 
 export const metadata: Metadata = {
@@ -18,28 +18,30 @@ const sections = [
   ["6. Сроки оказания услуг", "Сроки зависят от сложности работ и наличия комплектующих, фиксируются при согласовании заказа."],
   ["7. Гарантия", "На выполненные работы предоставляется гарантия в соответствии с действующими условиями сервиса."],
   ["8. Ответственность сторон", "Стороны несут ответственность в пределах, предусмотренных законодательством РФ и условиями данной оферты."],
-  ["9. Разрешение споров", "Споры решаются путем переговоров, при недостижении соглашения — в установленном законом порядке."],
+  ["9. Разрешение споров", "Споры решаются путем переговоров, при недостижении соглашения - в установленном законом порядке."],
   ["10. Форс-мажор", "Стороны освобождаются от ответственности за неисполнение обязательств при наступлении обстоятельств непреодолимой силы."],
   ["11. Срок действия", "Оферта действует бессрочно до момента ее изменения или отзыва исполнителем."],
   [
     "12. Реквизиты исполнителя",
     `Исполнитель: VIPАвто, ОГРНИП ${siteConfig.ogrnip}, ИНН ${siteConfig.inn}, ОКПО ${siteConfig.okpo}, ОКВЭД ${siteConfig.okved}, дата регистрации ${siteConfig.registrationDate}, адрес: ${siteConfig.address}.`,
   ],
-];
+] as const;
 
 export default function TermsPage() {
   return (
     <main className="section-padding pt-24">
       <div className="container-shell">
-        <p className="text-sm text-[var(--text-secondary)]">Главная / Публичная оферта</p>
-        <article className="card-surface mt-4 max-w-3xl p-6 sm:p-8">
-          <h1 className="text-3xl font-bold">Публичная оферта</h1>
-          {sections.map(([title, body]) => (
-            <section key={title} className="mt-6">
-              <h2 className="text-xl font-semibold">{title}</h2>
-              <p className="mt-2 text-[var(--text-secondary)]">{body}</p>
-            </section>
-          ))}
+        <p className="text-sm text-zinc-500">Главная / Публичная оферта</p>
+        <article className="card-surface mt-4 max-w-3xl p-6 md:p-8">
+          <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-5xl">Публичная оферта</h1>
+          <div className="mt-6 space-y-6 md:space-y-8">
+            {sections.map(([title, body]) => (
+              <section key={title}>
+                <h2 className="text-2xl font-semibold leading-snug md:text-3xl">{title}</h2>
+                <p className="mt-2 text-base leading-relaxed text-zinc-400 md:text-lg">{body}</p>
+              </section>
+            ))}
+          </div>
         </article>
       </div>
     </main>

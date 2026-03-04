@@ -38,7 +38,7 @@ export function ServicesSection() {
           {services.map((service) => (
             <article key={service.id} className="service-card card-surface rounded-xl p-6 md:p-8">
               <div className="flex items-center justify-between gap-3 md:gap-4">
-                <p className="text-xs font-medium uppercase tracking-widest text-[var(--text-secondary)]/75">{service.leadTime}</p>
+                <p className="text-xs font-medium uppercase tracking-widest text-zinc-400">{service.leadTime}</p>
                 {service.popular ? (
                   <span className="rounded-full bg-[var(--accent-2)]/10 px-3 py-1 text-xs font-medium uppercase tracking-widest text-[var(--accent-2)]">
                     {"Популярно"}
@@ -46,11 +46,11 @@ export function ServicesSection() {
                 ) : null}
               </div>
               <h3 className="mt-4 text-2xl font-semibold leading-snug md:text-3xl">{service.title}</h3>
-              <p className="mt-4 text-base leading-relaxed text-[var(--text-secondary)] md:text-lg">{service.description}</p>
+              <p className="mt-4 text-base leading-relaxed text-zinc-400 md:text-lg">{service.description}</p>
               <p className="mt-4 font-mono text-base text-[var(--accent-2)] md:text-lg">{service.price}</p>
               <ul className="mt-4 flex flex-wrap gap-3 md:gap-4">
                 {service.features.map((feature) => (
-                  <li key={feature} className="rounded-full border border-[var(--line)] px-3 py-1 text-xs font-medium uppercase tracking-widest text-[var(--text-secondary)]">
+                  <li key={feature} className="rounded-full border border-zinc-800 px-3 py-1 text-xs font-medium uppercase tracking-widest text-zinc-400">
                     {feature}
                   </li>
                 ))}

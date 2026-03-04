@@ -169,10 +169,7 @@ export function MobileMenu() {
   }, [closeMenu, isOpen, trapFocus]);
 
   useEffect(() => {
-    if (!isOpen) {
-      setGlitchId(null);
-      return;
-    }
+    if (!isOpen) return;
 
     let timerId: number | undefined;
 
@@ -419,10 +416,7 @@ export function MobileMenu() {
   const phoneHref = useMemo(() => `tel:${HEADER_PHONE.replace(/[^\d+]/g, "")}`, []);
 
   useEffect(() => {
-    if (!isOpen) {
-      setMenuScale(1);
-      return;
-    }
+    if (!isOpen) return;
 
     const recalcScale = () => {
       const content = contentRef.current;
@@ -548,7 +542,7 @@ export function MobileMenu() {
             ref={contentRef}
             className="mobile-menu-content relative z-10 flex min-h-dvh max-h-dvh flex-col justify-between overflow-hidden px-5 pt-[calc(80px+env(safe-area-inset-top))] pb-[calc(12px+env(safe-area-inset-bottom))]"
             style={{
-              transform: `scale(${menuScale})`,
+              transform: `scale(${isOpen ? menuScale : 1})`,
               transformOrigin: "top center",
             }}
           >
