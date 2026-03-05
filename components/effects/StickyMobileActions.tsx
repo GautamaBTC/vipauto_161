@@ -50,7 +50,7 @@ export function StickyMobileActions() {
             className="group inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-3 py-3 font-semibold text-black shadow-[0_0_18px_rgba(204,255,0,0.28)] transition-all duration-200 hover:bg-[var(--accent)]/92 hover:text-black hover:shadow-[0_0_30px_rgba(204,255,0,0.38)]"
           >
             <CalendarCheck2 className="h-4 w-4 text-black transition-transform duration-200 group-hover:-translate-y-0.5" />
-            {bookLabel}
+            <span className="text-black">{bookLabel}</span>
           </a>
         </div>
         <p className="px-1 pt-2 text-center text-xs font-medium uppercase tracking-widest text-zinc-500">{quickActionsLabel}</p>
