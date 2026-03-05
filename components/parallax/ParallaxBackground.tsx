@@ -263,8 +263,6 @@ export default function ParallaxBackground({ intensity = 1 }: Props) {
     };
   }, [isMobile]);
 
-  if (typeof window !== "undefined" && isMobile) return null;
-
   return (
     <div ref={containerRef} aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 h-full w-full overflow-hidden opacity-0">
       <div ref={videoLayerRef} className="absolute inset-[-12%] will-change-transform">
