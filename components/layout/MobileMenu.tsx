@@ -71,6 +71,7 @@ export function MobileMenu() {
   const closeTlRef = useRef<gsap.core.Timeline | null>(null);
   const openTlRef = useRef<gsap.core.Timeline | null>(null);
   const burgerTlRef = useRef<gsap.core.Timeline | null>(null);
+  const burgerEntryTlRef = useRef<gsap.core.Timeline | null>(null);
   const glitchClearTimerRef = useRef<number | null>(null);
   const openFocusTimerRef = useRef<number | null>(null);
 
@@ -399,23 +400,31 @@ export function MobileMenu() {
     const bot = lineBotRef.current;
     if (!isBurgerVisible || !top || !mid || !bot || burgerEntryPlayedRef.current) return;
 
-    burgerEntryPlayedRef.current = true;
-    const ctx = gsap.context(() => {
-      const lines = [top, mid, bot];
-      gsap.set(lines, { y: -60, opacity: 0, scaleX: 0.3 });
+    const lines = [top, mid, bot];
+    gsap.killTweensOf(lines);
+    burgerEntryTlRef.current?.kill();
+    gsap.set(lines, { y: -60, opacity: 0, scaleX: 0.3 });
 
-      const entryTl = gsap.timeline({ delay: 0.3 });
-      entryTl
-        .to(top, { y: 0, opacity: 1, scaleX: 1, duration: 0.6, ease: "bounce.out" }, 0)
-        .to(mid, { y: 0, opacity: 1, scaleX: 1, duration: 0.55, ease: "bounce.out" }, "-=0.4")
-        .to(bot, { y: 0, opacity: 1, scaleX: 1, duration: 0.5, ease: "bounce.out" }, "-=0.35")
-        .call(() => {
-          gsap.set(lines, { clearProps: "y,opacity,scaleX" });
-        });
+    const entryTl = gsap.timeline({
+      delay: 0.3,
+      onComplete: () => {
+        burgerEntryPlayedRef.current = true;
+        gsap.set(lines, { clearProps: "y,opacity,scaleX" });
+        burgerEntryTlRef.current = null;
+      },
     });
+    entryTl
+      .to(top, { y: 0, opacity: 1, scaleX: 1, duration: 0.6, ease: "bounce.out" }, 0)
+      .to(mid, { y: 0, opacity: 1, scaleX: 1, duration: 0.55, ease: "bounce.out" }, "-=0.4")
+      .to(bot, { y: 0, opacity: 1, scaleX: 1, duration: 0.5, ease: "bounce.out" }, "-=0.35");
+    burgerEntryTlRef.current = entryTl;
 
     return () => {
-      ctx.revert();
+      burgerEntryTlRef.current?.kill();
+      burgerEntryTlRef.current = null;
+      if (!burgerEntryPlayedRef.current) {
+        gsap.set(lines, { clearProps: "y,opacity,scaleX" });
+      }
     };
   }, [isBurgerVisible]);
 
