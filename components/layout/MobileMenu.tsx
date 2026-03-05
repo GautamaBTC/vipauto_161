@@ -77,7 +77,7 @@ export function MobileMenu() {
     let timeoutId: number | undefined;
 
     const showBurger = () => {
-      timeoutId = window.setTimeout(() => setIsBurgerVisible(true), 3000);
+      timeoutId = window.setTimeout(() => setIsBurgerVisible(true), 1500);
     };
 
     if (document.readyState === "complete") {
