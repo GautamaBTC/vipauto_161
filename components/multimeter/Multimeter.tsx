@@ -16,6 +16,7 @@ import { MeterFooter } from "./MeterFooter";
 import type { MultimeterProps } from "./multimeter.types";
 
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 function Divider() {
   return (

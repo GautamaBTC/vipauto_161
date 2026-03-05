@@ -7,6 +7,7 @@ import Image from "next/image";
 import { cn } from "@/lib/cn";
 
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 type ParallaxImageProps = {
   src: string;

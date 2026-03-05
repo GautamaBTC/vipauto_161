@@ -118,6 +118,7 @@ export default function ParallaxBackground({ intensity = 1 }: Props) {
     if (typeof window === "undefined") return;
 
     gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true });
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       gsap.set(containerRef.current, { opacity: 1 });

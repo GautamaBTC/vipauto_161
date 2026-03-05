@@ -12,6 +12,7 @@ export function ScrollProgress() {
     if (!node) return;
 
     gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true });
     node.style.transformOrigin = "left center";
     node.style.transform = "scaleX(0)";
 

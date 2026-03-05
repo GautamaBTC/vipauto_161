@@ -7,6 +7,7 @@ import { cn } from "@/lib/cn";
 import { getIsMobile } from "@/hooks/useIsMobile";
 
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 export type ParallaxLayer = {
   id: string;

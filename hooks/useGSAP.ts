@@ -11,6 +11,7 @@ export function useGSAP(): typeof gsap {
     if (gsapReady) return;
     gsap.registerPlugin(ScrollTrigger);
     gsap.config({ nullTargetWarn: false });
+    ScrollTrigger.config({ ignoreMobileResize: true });
     gsapReady = true;
   }, []);
 
