@@ -6,7 +6,7 @@ export function HeroSection() {
   return (
     <section
       id="top"
-      className="relative overflow-visible py-8 min-h-[100svh] h-auto flex items-center md:py-16 md:min-h-[80vh]"
+      className="relative h-auto overflow-visible py-8 md:min-h-[80vh] md:py-16"
       style={{ touchAction: "auto" }}
     >
       <div className="container-shell">

@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@/hooks/useGSAP";
 import { cn } from "@/lib/cn";
 import type { RevealDirection } from "@/lib/gsapPresets";
+import { getIsMobile } from "@/hooks/useIsMobile";
 
 type RevealProps = {
   children: ReactNode;
@@ -20,6 +21,11 @@ export function Reveal({ children, className, direction = "up" }: RevealProps) {
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
+
+    if (getIsMobile()) {
+      gsap.set(node, { autoAlpha: 1, x: 0, y: 0, clearProps: "transform" });
+      return;
+    }
 
     const fromVars =
       direction === "left"
