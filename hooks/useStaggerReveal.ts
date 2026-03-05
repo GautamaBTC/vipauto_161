@@ -42,6 +42,7 @@ export function useStaggerReveal(ref: RefObject<HTMLElement | null>, config: Sta
   useEffect(() => {
     const container = ref.current;
     if (!container) return;
+    const isMobile = window.matchMedia(REVEAL_CONFIG.mobileQuery).matches;
 
     const children = Array.from(container.querySelectorAll<HTMLElement>(childSelector));
     if (!children.length) return;
@@ -51,12 +52,12 @@ export function useStaggerReveal(ref: RefObject<HTMLElement | null>, config: Sta
       playedRef.current = true;
     };
 
-    if (reduced) {
+    if (reduced || isMobile) {
+      container.classList.add("is-revealed");
       showImmediately();
       return;
     }
 
-    const isMobile = window.matchMedia(REVEAL_CONFIG.mobileQuery).matches;
     const fromVars = isMobile ? adaptRevealVarsForMobile(from) : from;
     const toVars = isMobile ? adaptRevealVarsForMobile(to) : to;
     const durationValue = isMobile ? duration * REVEAL_CONFIG.mobileDurationMultiplier : duration;

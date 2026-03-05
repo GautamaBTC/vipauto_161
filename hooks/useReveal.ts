@@ -39,6 +39,7 @@ export function useReveal(ref: RefObject<HTMLElement | null>, config: RevealConf
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
+    const isMobile = window.matchMedia(REVEAL_CONFIG.mobileQuery).matches;
 
     const showImmediately = () => {
       gsap.set(node, { ...to, clearProps: "visibility" });
@@ -48,12 +49,11 @@ export function useReveal(ref: RefObject<HTMLElement | null>, config: RevealConf
       playedRef.current = true;
     };
 
-    if (reduced) {
+    if (reduced || isMobile) {
       showImmediately();
       return;
     }
 
-    const isMobile = window.matchMedia(REVEAL_CONFIG.mobileQuery).matches;
     const fromVars = isMobile ? adaptRevealVarsForMobile(from) : from;
     const toVars = isMobile ? adaptRevealVarsForMobile(to) : to;
     const durationValue = isMobile ? duration * REVEAL_CONFIG.mobileDurationMultiplier : duration;
