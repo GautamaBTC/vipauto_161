@@ -3,11 +3,14 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { getIsMobile } from "@/hooks/useIsMobile";
 
 export function ScrollProgress() {
   const barRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (getIsMobile()) return;
+
     const node = barRef.current;
     if (!node) return;
 
