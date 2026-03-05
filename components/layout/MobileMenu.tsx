@@ -187,21 +187,27 @@ export function MobileMenu() {
   useEffect(() => {
     if (!isOpen) return;
 
+    // Variant 2: deterministic, clearly visible glitch cycle
     let loopTimerId: number | undefined;
+    let cycleIndex = 0;
 
     const tick = () => {
-      const randomItem = MENU_ITEMS[Math.floor(Math.random() * MENU_ITEMS.length)];
-      if (randomItem) {
-        setGlitchId(randomItem.id);
-        if (glitchClearTimerRef.current) {
-          window.clearTimeout(glitchClearTimerRef.current);
-        }
-        glitchClearTimerRef.current = window.setTimeout(() => setGlitchId((prev) => (prev === randomItem.id ? null : prev)), 240);
+      const item = MENU_ITEMS[cycleIndex % MENU_ITEMS.length];
+      cycleIndex += 1;
+      if (!item) return;
+
+      setGlitchId(item.id);
+      if (glitchClearTimerRef.current) {
+        window.clearTimeout(glitchClearTimerRef.current);
       }
-      loopTimerId = window.setTimeout(tick, 3000 + Math.random() * 3000);
+      glitchClearTimerRef.current = window.setTimeout(() => {
+        setGlitchId((prev) => (prev === item.id ? null : prev));
+      }, 420);
+
+      loopTimerId = window.setTimeout(tick, 1400);
     };
 
-    loopTimerId = window.setTimeout(tick, 1200);
+    loopTimerId = window.setTimeout(tick, 260);
 
     return () => {
       if (loopTimerId) window.clearTimeout(loopTimerId);
@@ -262,79 +268,95 @@ export function MobileMenu() {
     const bot = lineBotRef.current;
     if (!top || !mid || !bot) return;
 
-    const ctx = gsap.context(() => {
-      gsap.killTweensOf([top, mid, bot]);
+    gsap.killTweensOf([top, mid, bot]);
 
-      if (isOpen) {
-        const flyDistance = -Math.max((window?.innerWidth ?? 420) - 100, 320);
-        gsap.to(top, {
-          y: 7.2,
-          x: 1.2,
-          rotate: 36,
+    if (isOpen) {
+      const tl = gsap.timeline({ defaults: { ease: "power3.inOut" } });
+      tl.to(
+        top,
+        {
+          y: 7.6,
+          x: 0,
+          rotate: 45,
           background: "#ccff00",
           boxShadow: "0 0 12px rgba(204,255,0,0.4)",
-          duration: 0.5,
-          ease: "back.out(1.4)",
-        });
-        gsap.to(mid, {
-          x: flyDistance,
-          y: -1.5,
-          rotate: -14,
-          opacity: 0,
-          scaleX: 0,
-          duration: 0.26,
-          ease: "power4.in",
-        });
-        gsap.to(bot, {
-          y: -7.2,
-          x: -1.2,
-          rotate: -52,
-          width: 38,
-          background: "#00f0ff",
-          boxShadow: "0 0 12px rgba(0,240,255,0.35)",
-          duration: 0.5,
-          ease: "back.out(1.4)",
-        });
-        return;
-      }
-
-      gsap.to(top, {
-        y: 0,
-        x: 0,
-        rotate: 0,
-        background: "#ccff00",
-        boxShadow: "0 0 8px rgba(204,255,0,0.25)",
-        duration: 0.46,
-        ease: "back.out(1.35)",
-      });
-      gsap.fromTo(
-        mid,
-        { x: 16, y: 0, rotate: 0, opacity: 0, scaleX: 0.45 },
-        {
-          x: 0,
-          y: 0,
-          rotate: 0,
-          opacity: 1,
-          scaleX: 1,
-          duration: 0.44,
-          delay: 0.06,
-          ease: "back.out(1.35)",
+          duration: 0.42,
         },
-      );
-      gsap.to(bot, {
+        0,
+      )
+        .to(
+          bot,
+          {
+            y: -7.6,
+            x: 0,
+            rotate: -45,
+            width: "100%",
+            background: "#00f0ff",
+            boxShadow: "0 0 12px rgba(0,240,255,0.35)",
+            duration: 0.42,
+          },
+          0,
+        )
+        .to(
+          mid,
+          {
+            clipPath: "inset(0 100% 0 0)",
+            opacity: 0,
+            duration: 0.3,
+          },
+          0,
+        );
+      return;
+    }
+
+    const tl = gsap.timeline();
+    tl.to(
+      [top, bot],
+      {
         y: 0,
         x: 0,
         rotate: 0,
-        width: 19,
-        background: "#00f0ff",
-        boxShadow: "0 0 8px rgba(0,240,255,0.25)",
-        duration: 0.46,
-        ease: "back.out(1.35)",
-      });
-    });
+        duration: 0.42,
+        ease: "expo.out",
+      },
+      0,
+    )
+      .to(
+        bot,
+        {
+          width: "50%",
+          background: "#00f0ff",
+          boxShadow: "0 0 8px rgba(0,240,255,0.25)",
+          duration: 0.42,
+          ease: "expo.out",
+        },
+        0,
+      )
+      .to(
+        top,
+        {
+          background: "#ccff00",
+          boxShadow: "0 0 8px rgba(204,255,0,0.25)",
+          duration: 0.42,
+          ease: "expo.out",
+        },
+        0,
+      )
+      .fromTo(
+        mid,
+        { clipPath: "inset(0 100% 0 0)", opacity: 0 },
+        {
+          clipPath: "inset(0 0 0 0)",
+          opacity: 1,
+          duration: 0.5,
+          delay: 0.08,
+          ease: "expo.out",
+        },
+        0,
+      );
 
     return () => {
-      ctx.revert();
+      gsap.killTweensOf([top, mid, bot]);
     };
   }, [isOpen]);
 
@@ -605,8 +627,8 @@ export function MobileMenu() {
               background: "linear-gradient(90deg, #ccff00 0%, #00f0ff 100%)",
               boxShadow: "0 0 8px rgba(224,230,237,0.25)",
               opacity: 1,
-              transform: "scaleX(1)",
-              transformOrigin: "left center",
+              clipPath: "inset(0 0 0 0)",
+              transformOrigin: "right center",
             }}
           />
           <span
