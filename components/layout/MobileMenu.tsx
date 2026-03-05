@@ -130,6 +130,58 @@ export function MobileMenu() {
     setIsOpen(true);
   }, [isAnimating]);
 
+  const buildBurgerTimeline = useCallback(() => {
+    const top = lineTopRef.current;
+    const mid = lineMidRef.current;
+    const bot = lineBotRef.current;
+    if (!top || !mid || !bot) return null;
+
+    gsap.killTweensOf([top, mid, bot]);
+    burgerTlRef.current?.kill();
+
+    gsap.set(mid, {
+      clipPath: "inset(0% 0% 0% 0%)",
+      WebkitClipPath: "inset(0% 0% 0% 0%)",
+      opacity: 1,
+    });
+
+    const tl = gsap.timeline({ paused: true });
+    tl.to(
+      top,
+      {
+        y: 8,
+        rotate: 45,
+        duration: 0.4,
+        ease: "power3.inOut",
+      },
+      0,
+    )
+      .to(
+        bot,
+        {
+          y: -8,
+          rotate: -45,
+          width: "100%",
+          duration: 0.4,
+          ease: "power3.inOut",
+        },
+        0,
+      )
+      .to(
+        mid,
+        {
+          clipPath: "inset(0% 0% 0% 100%)",
+          WebkitClipPath: "inset(0% 0% 0% 100%)",
+          duration: 0.3,
+          ease: "power2.inOut",
+        },
+        0,
+      );
+
+    burgerTlRef.current = tl;
+    return tl;
+  }, []);
+
   const trapFocus = useCallback(
     (event: KeyboardEvent) => {
       if (event.key !== "Tab" || !isOpen || !panelRef.current) return;
@@ -329,63 +381,6 @@ export function MobileMenu() {
   }, [isOpen]);
 
   useEffect(() => {
-    const top = lineTopRef.current;
-    const mid = lineMidRef.current;
-    const bot = lineBotRef.current;
-    if (!top || !mid || !bot) return;
-
-    gsap.killTweensOf([top, mid, bot]);
-    burgerTlRef.current?.kill();
-
-    // Base state for deterministic reverse/play behavior
-    gsap.set(mid, {
-      clipPath: "inset(0% 0% 0% 0%)",
-      WebkitClipPath: "inset(0% 0% 0% 0%)",
-      opacity: 1,
-    });
-
-    const tl = gsap.timeline({ paused: true });
-    tl.to(
-      top,
-      {
-        y: 8,
-        rotate: 45,
-        duration: 0.4,
-        ease: "power3.inOut",
-      },
-      0,
-    )
-      .to(
-        bot,
-        {
-          y: -8,
-          rotate: -45,
-          width: "100%",
-          duration: 0.4,
-          ease: "power3.inOut",
-        },
-        0,
-      )
-      .to(
-        mid,
-        {
-          clipPath: "inset(0% 0% 0% 100%)",
-          WebkitClipPath: "inset(0% 0% 0% 100%)",
-          duration: 0.3,
-          ease: "power2.inOut",
-        },
-        0,
-      );
-
-    burgerTlRef.current = tl;
-
-    return () => {
-      burgerTlRef.current?.kill();
-      gsap.killTweensOf([top, mid, bot]);
-    };
-  }, []);
-
-  useEffect(() => {
     if (!burgerTlRef.current) return;
     if (isOpen) {
       burgerTlRef.current.play();
@@ -410,6 +405,11 @@ export function MobileMenu() {
       onComplete: () => {
         burgerEntryPlayedRef.current = true;
         gsap.set(lines, { clearProps: "y,opacity,scaleX" });
+        const tl = buildBurgerTimeline();
+        if (tl) {
+          if (isOpen) tl.play();
+          else tl.progress(0);
+        }
         burgerEntryTlRef.current = null;
       },
     });
@@ -426,7 +426,15 @@ export function MobileMenu() {
         gsap.set(lines, { clearProps: "y,opacity,scaleX" });
       }
     };
-  }, [isBurgerVisible]);
+  }, [buildBurgerTimeline, isBurgerVisible, isOpen]);
+
+  useEffect(() => {
+    if (!isBurgerVisible || !burgerEntryPlayedRef.current || burgerTlRef.current) return;
+    const tl = buildBurgerTimeline();
+    if (!tl) return;
+    if (isOpen) tl.play();
+    else tl.progress(0);
+  }, [buildBurgerTimeline, isBurgerVisible, isOpen]);
 
   useEffect(() => {
     const overlay = overlayRef.current;
@@ -796,7 +804,7 @@ export function MobileMenu() {
                     </svg>
                   </div>
                   <span ref={callLabelRef} className="call-label inline-block text-xs font-bold uppercase tracking-[0.25em] text-white/80">
-                    жми
+                    позвонить
                   </span>
                 </div>
               </div>
