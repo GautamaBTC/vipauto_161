@@ -67,6 +67,7 @@ export function MobileMenu() {
   const itemRefs = useRef<Array<HTMLAnchorElement | null>>([]);
   const pendingAnchorRef = useRef<string | null>(null);
   const closeTlRef = useRef<gsap.core.Timeline | null>(null);
+  const openTlRef = useRef<gsap.core.Timeline | null>(null);
   const glitchClearTimerRef = useRef<number | null>(null);
   const openFocusTimerRef = useRef<number | null>(null);
 
@@ -382,100 +383,108 @@ export function MobileMenu() {
 
     if (!overlay || !panel || !footer || !items.length) return;
 
-    const ctx = gsap.context(() => {
-      closeTlRef.current?.kill();
-      gsap.killTweensOf([overlay, panel, footer, ...items]);
+    openTlRef.current?.kill();
+    closeTlRef.current?.kill();
+    gsap.killTweensOf([overlay, panel, footer, ...items]);
 
-      if (isOpen) {
-        gsap.set(overlay, {
-          autoAlpha: 1,
-          visibility: "visible",
-          pointerEvents: "auto",
-        });
+    if (isOpen) {
+      gsap.set(overlay, {
+        autoAlpha: 1,
+        visibility: "visible",
+        pointerEvents: "auto",
+      });
 
-        gsap.set(panel, { y: 36, scale: 0.985, autoAlpha: 0 });
-        gsap.set(items, {
-          y: 46,
-          autoAlpha: 0,
-        });
-        gsap.set(footer, { autoAlpha: 0, y: 24 });
+      gsap.set(panel, { y: 36, scale: 0.985, autoAlpha: 0 });
+      gsap.set(items, {
+        y: 46,
+        autoAlpha: 0,
+      });
+      gsap.set(footer, { autoAlpha: 0, y: 24 });
 
-        gsap
-          .timeline({
-            onComplete: () => {
-              setIsAnimating(false);
-            },
-          })
-          .to(
-            panel,
-            {
-              y: 0,
-              scale: 1,
-              autoAlpha: 1,
-              duration: 0.62,
-              ease: "back.out(1.45)",
-            },
-            0,
-          )
-          .to(
-            items,
-            {
-              y: 0,
-              autoAlpha: 1,
-              duration: 0.48,
-              stagger: 0.08,
-              ease: "back.out(1.45)",
-            },
-            0.1,
-          )
-          .to(footer, { autoAlpha: 1, y: 0, duration: 0.36, ease: "back.out(1.35)" }, 0.28);
-
-        if (openFocusTimerRef.current) {
-          window.clearTimeout(openFocusTimerRef.current);
-        }
-        openFocusTimerRef.current = window.setTimeout(() => firstItemRef.current?.focus(), 200);
-        return;
-      }
-
-      const closeTl = gsap.timeline({
+      const openTl = gsap.timeline({
         onComplete: () => {
-          gsap.set(overlay, {
-            autoAlpha: 0,
-            visibility: "hidden",
-            pointerEvents: "none",
-          });
-          burgerRef.current?.focus();
-          setIsLocked(false);
-          runPendingScroll();
           setIsAnimating(false);
         },
       });
 
-      closeTl
+      openTl
         .to(
-          items,
+          panel,
           {
-            y: 22,
-            autoAlpha: 0,
-            duration: 0.2,
-            stagger: { each: 0.04, from: "end" },
-            ease: "power2.inOut",
+            y: 0,
+            scale: 1,
+            autoAlpha: 1,
+            duration: 0.62,
+            ease: "back.out(1.45)",
           },
           0,
         )
-        .to(footer, { autoAlpha: 0, y: 16, duration: 0.15, ease: "power2.in" }, 0)
-        .to(panel, { y: 26, autoAlpha: 0, scale: 0.985, duration: 0.34, ease: "power3.in" }, 0.06);
+        .to(
+          items,
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.48,
+            stagger: 0.08,
+            ease: "back.out(1.45)",
+          },
+          0.1,
+        )
+        .to(footer, { autoAlpha: 1, y: 0, duration: 0.36, ease: "back.out(1.35)" }, 0.28);
 
-      closeTlRef.current = closeTl;
+      openTlRef.current = openTl;
+
+      if (openFocusTimerRef.current) {
+        window.clearTimeout(openFocusTimerRef.current);
+      }
+      openFocusTimerRef.current = window.setTimeout(() => firstItemRef.current?.focus(), 200);
+      return () => {
+        if (openFocusTimerRef.current) {
+          window.clearTimeout(openFocusTimerRef.current);
+          openFocusTimerRef.current = null;
+        }
+        openTlRef.current?.kill();
+      };
+    }
+
+    const closeTl = gsap.timeline({
+      onComplete: () => {
+        gsap.set(overlay, {
+          autoAlpha: 0,
+          visibility: "hidden",
+          pointerEvents: "none",
+        });
+        burgerRef.current?.focus();
+        setIsLocked(false);
+        runPendingScroll();
+        setIsAnimating(false);
+      },
     });
+
+    closeTl
+      .to(
+        items,
+        {
+          y: 22,
+          autoAlpha: 0,
+          duration: 0.2,
+          stagger: { each: 0.04, from: "end" },
+          ease: "power2.inOut",
+        },
+        0,
+      )
+      .to(footer, { autoAlpha: 0, y: 16, duration: 0.15, ease: "power2.in" }, 0)
+      .to(panel, { y: 26, autoAlpha: 0, scale: 0.985, duration: 0.34, ease: "power3.in" }, 0.06);
+
+    closeTlRef.current = closeTl;
 
     return () => {
       if (openFocusTimerRef.current) {
         window.clearTimeout(openFocusTimerRef.current);
         openFocusTimerRef.current = null;
       }
+      openTlRef.current?.kill();
       closeTlRef.current?.kill();
-      ctx.revert();
     };
   }, [isOpen, runPendingScroll]);
 
@@ -637,6 +646,21 @@ export function MobileMenu() {
             <div className="menu-film-grain absolute inset-0 opacity-[0.06]" />
           </div>
 
+          <a
+            ref={topPhoneRef}
+            href={phoneHref}
+            className="menu-top-phone-wrapper absolute left-5 top-[calc(18px+env(safe-area-inset-top))] z-20 text-[1.02rem] font-medium tracking-[0.02em] text-zinc-100"
+            style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
+            aria-label={`Позвонить ${HEADER_PHONE}`}
+          >
+            {phoneChars.map((char, index) => (
+              <span key={`phone-top-${index}-${char}`} className={`menu-top-phone-char ${char === " " ? "space" : ""}`}>
+                {char === " " ? "\u00A0" : char}
+              </span>
+            ))}
+            <span className="menu-top-phone-glare" aria-hidden />
+          </a>
+
           <div
             ref={contentRef}
             className="mobile-menu-content relative z-10 flex min-h-dvh max-h-dvh flex-col justify-between overflow-hidden px-5 pt-[calc(80px+env(safe-area-inset-top))] pb-[calc(12px+env(safe-area-inset-bottom))]"
@@ -645,20 +669,6 @@ export function MobileMenu() {
               transformOrigin: "top center",
             }}
           >
-            <a
-              ref={topPhoneRef}
-              href={phoneHref}
-              className="menu-top-phone-wrapper absolute left-5 top-[calc(18px+env(safe-area-inset-top))] z-20 text-[1.02rem] font-medium tracking-[0.02em] text-zinc-100"
-              style={{ fontFamily: "var(--font-jetbrains-mono), monospace" }}
-              aria-label={`Позвонить ${HEADER_PHONE}`}
-            >
-              {phoneChars.map((char, index) => (
-                <span key={`phone-top-${index}-${char}`} className={`menu-top-phone-char ${char === " " ? "space" : ""}`}>
-                  {char === " " ? "\u00A0" : char}
-                </span>
-              ))}
-              <span className="menu-top-phone-glare" aria-hidden />
-            </a>
 
             <nav className="flex flex-1 items-start justify-center pt-2">
               <ul className="w-full max-w-md">
