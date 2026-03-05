@@ -48,14 +48,58 @@ export function useStaggerReveal(ref: RefObject<HTMLElement | null>, config: Sta
     if (!children.length) return;
 
     const showImmediately = () => {
-      gsap.set(children, { ...to, clearProps: "visibility" });
+      gsap.set(children, { ...to, clearProps: "visibility,transform,opacity,filter" });
       playedRef.current = true;
     };
 
-    if (reduced || isMobile) {
+    if (reduced) {
       container.classList.add("is-revealed");
       showImmediately();
       return;
+    }
+
+    if (isMobile) {
+      children.forEach((child, index) => {
+        child.classList.add("mobile-stagger-item");
+        child.style.setProperty("--stagger-index", String(index));
+      });
+
+      const activate = () => {
+        if (once && playedRef.current) return;
+        container.classList.add("is-revealed", "mobile-stagger-active");
+        playedRef.current = true;
+      };
+
+      if (!observe) {
+        if (revealed) activate();
+        else {
+          playedRef.current = false;
+          container.classList.remove("mobile-stagger-active");
+        }
+        return () => {
+          children.forEach((child) => child.style.removeProperty("--stagger-index"));
+        };
+      }
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            activate();
+            if (once) observer.disconnect();
+          } else if (!once) {
+            playedRef.current = false;
+            container.classList.remove("mobile-stagger-active");
+          }
+        },
+        { threshold },
+      );
+
+      observer.observe(container);
+
+      return () => {
+        observer.disconnect();
+        children.forEach((child) => child.style.removeProperty("--stagger-index"));
+      };
     }
 
     const fromVars = isMobile ? adaptRevealVarsForMobile(from) : from;

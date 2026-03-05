@@ -42,16 +42,48 @@ export function useReveal(ref: RefObject<HTMLElement | null>, config: RevealConf
     const isMobile = window.matchMedia(REVEAL_CONFIG.mobileQuery).matches;
 
     const showImmediately = () => {
-      gsap.set(node, { ...to, clearProps: "visibility" });
+      gsap.set(node, { ...to, clearProps: "visibility,transform,opacity,filter" });
       node.classList.add("is-revealed");
       setRevealed(true);
       onReveal?.();
       playedRef.current = true;
     };
 
-    if (reduced || isMobile) {
+    if (reduced) {
       showImmediately();
       return;
+    }
+
+    if (isMobile) {
+      node.classList.add("mobile-reveal-lite");
+
+      const run = () => {
+        if (once && playedRef.current) return;
+        node.classList.add("is-revealed", "mobile-reveal-active");
+        setRevealed(true);
+        onReveal?.();
+        playedRef.current = true;
+      };
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            run();
+            if (once) observer.disconnect();
+          } else if (!once) {
+            playedRef.current = false;
+            setRevealed(false);
+            node.classList.remove("mobile-reveal-active");
+          }
+        },
+        { threshold },
+      );
+
+      observer.observe(node);
+
+      return () => {
+        observer.disconnect();
+      };
     }
 
     const fromVars = isMobile ? adaptRevealVarsForMobile(from) : from;
