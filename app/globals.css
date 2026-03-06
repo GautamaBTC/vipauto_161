@@ -742,10 +742,19 @@ select:focus-visible {
 }
 
 /* GSAP logo animation: let GSAP fully own transform/opacity */
+@keyframes logo-fallback-show {
+  to {
+    opacity: 1;
+  }
+}
+
 .logo-anim-node {
   transform-origin: center center;
   transition: none !important;
   backface-visibility: hidden;
+  opacity: 0;
+  animation: logo-fallback-show 0s forwards;
+  animation-delay: 2s;
 }
 
 .logo-accent-line {
