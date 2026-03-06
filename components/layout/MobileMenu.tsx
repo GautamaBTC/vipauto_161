@@ -61,6 +61,11 @@ export function MobileMenu() {
   const lineTopRef = useRef<HTMLSpanElement>(null);
   const lineMidRef = useRef<HTMLSpanElement>(null);
   const lineBotRef = useRef<HTMLSpanElement>(null);
+  const logoRef = useRef<HTMLAnchorElement | null>(null);
+  const logoVipRef = useRef<HTMLSpanElement | null>(null);
+  const logoAutoRef = useRef<HTMLSpanElement | null>(null);
+  const logoRegionRef = useRef<HTMLSpanElement | null>(null);
+  const logoAccentRef = useRef<HTMLSpanElement | null>(null);
   const topPhoneRef = useRef<HTMLAnchorElement | null>(null);
   const callArrowRef = useRef<HTMLDivElement | null>(null);
   const callLabelRef = useRef<HTMLSpanElement | null>(null);
@@ -94,6 +99,67 @@ export function MobileMenu() {
       if (timeoutId) window.clearTimeout(timeoutId);
       window.removeEventListener("load", showBurger);
     };
+  }, []);
+
+  useEffect(() => {
+    const logo = logoRef.current;
+    const vip = logoVipRef.current;
+    const auto = logoAutoRef.current;
+    const region = logoRegionRef.current;
+    const accent = logoAccentRef.current;
+    if (!logo || !vip || !auto || !region || !accent) return;
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+
+    const ctx = gsap.context(() => {
+      gsap.set([vip, auto, region], { opacity: 0 });
+      gsap.set(vip, { x: -70, rotate: -7, scale: 0.9, filter: "blur(6px)" });
+      gsap.set(auto, { x: 70, rotate: 7, scale: 0.9, filter: "blur(6px)" });
+      gsap.set(region, { y: 8, scale: 0.92, filter: "blur(5px)" });
+      gsap.set(accent, { scaleX: 0, transformOrigin: "left center" });
+
+      const tl = gsap.timeline({ delay: 0.2 });
+      tl.to(vip, {
+        x: 0,
+        rotate: 0,
+        scale: 1,
+        opacity: 1,
+        filter: "blur(0px)",
+        duration: 0.72,
+        ease: "power3.out",
+      })
+        .to(
+          auto,
+          {
+            x: 0,
+            rotate: 0,
+            scale: 1,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 0.72,
+            ease: "power3.out",
+          },
+          "-=0.42",
+        )
+        .to(
+          region,
+          {
+            y: 0,
+            scale: 1,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 0.55,
+            ease: "power2.out",
+          },
+          "-=0.4",
+        )
+        .to(logo, { scale: 1.03, duration: 0.2, ease: "power2.out" })
+        .to(logo, { scale: 1, duration: 0.35, ease: "power2.inOut" })
+        .to(accent, { scaleX: 1, duration: 0.5, ease: "power3.out" }, "-=0.28");
+    }, logo);
+
+    return () => ctx.revert();
   }, []);
 
   const setItemRef = useCallback((index: number, el: HTMLAnchorElement | null) => {
@@ -413,10 +479,10 @@ export function MobileMenu() {
         burgerEntryTlRef.current = null;
       },
     });
-    entryTl
-      .to(top, { y: 0, opacity: 1, scaleX: 1, duration: 0.6, ease: "bounce.out" }, 0)
-      .to(mid, { y: 0, opacity: 1, scaleX: 1, duration: 0.55, ease: "bounce.out" }, "-=0.4")
-      .to(bot, { y: 0, opacity: 1, scaleX: 1, duration: 0.5, ease: "bounce.out" }, "-=0.35");
+      entryTl
+        .to(top, { y: 0, opacity: 1, scaleX: 1, duration: 0.8, ease: "elastic.out(0.4, 0.3)" }, 0)
+        .to(mid, { y: 0, opacity: 1, scaleX: 1, duration: 0.75, ease: "elastic.out(0.4, 0.3)" }, "-=0.55")
+        .to(bot, { y: 0, opacity: 1, scaleX: 1, duration: 0.7, ease: "elastic.out(0.4, 0.3)" }, "-=0.5");
     burgerEntryTlRef.current = entryTl;
 
     return () => {
@@ -618,6 +684,7 @@ export function MobileMenu() {
         }}
       >
         <Link
+          ref={logoRef}
           href="/"
           className="header-logo pointer-events-auto absolute top-1/2 z-[1201] -translate-y-1/2 select-none"
           style={{ left: "max(1.25rem, env(safe-area-inset-left))" }}
@@ -625,13 +692,18 @@ export function MobileMenu() {
         >
           <span className="vip-logo-monolith" aria-label="VIPАВТО 161 RUS">
             <span className="logo-text">
-              <span className="vip-part">VIP</span>
-              <span className="auto-part">АВТО</span>
+              <span ref={logoVipRef} className="vip-part">VIP</span>
+              <span ref={logoAutoRef} className="auto-part">АВТО</span>
             </span>
-            <span className="logo-region">
+            <span ref={logoRegionRef} className="logo-region">
               <span className="region-code">161</span>
               <span className="region-flag">RUS</span>
             </span>
+            <span
+              ref={logoAccentRef}
+              aria-hidden="true"
+              className="absolute -bottom-[4px] left-0 h-[2px] w-full bg-gradient-to-r from-[#ccff00] to-[#00f0ff]"
+            />
           </span>
         </Link>
       </header>
