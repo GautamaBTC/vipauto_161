@@ -34,6 +34,8 @@ export type ReviewItem = {
 export type BrandItem = {
   id: string;
   name: string;
+  color: string;
+  group: "china" | "japan" | "korea" | "europe" | "usa" | "russia";
 };
 
 export type LeadPayload = {

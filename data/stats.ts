@@ -3,5 +3,5 @@ export const stats = [
   { id: "rating", value: 4.6, suffix: "/5", decimals: 1, label: "средняя оценка на Яндекс Картах" },
   { id: "reviews", value: 117, suffix: "+", decimals: 0, label: "реальных оценок клиентов" },
   { id: "satisfied", value: 25000, suffix: "+", decimals: 0, label: "довольных клиентов" },
-  { id: "services", value: 9, suffix: "", decimals: 0, label: "ключевых направлений работ" },
+  { id: "services", value: 10, suffix: "", decimals: 0, label: "ключевых направлений работ" },
 ] as const;
