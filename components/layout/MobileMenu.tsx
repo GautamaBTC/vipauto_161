@@ -43,6 +43,12 @@ const HEADER_PHONE_CHARS = [
   "9",
 ] as const;
 
+function shouldReduceMotion(): boolean {
+  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const isMobileViewport = window.matchMedia("(max-width: 767px)").matches;
+  return prefersReduced && !isMobileViewport;
+}
+
 export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -109,7 +115,7 @@ export function MobileMenu() {
     const accent = logoAccentRef.current;
     if (!logo || !vip || !auto || !region || !accent) return;
 
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = shouldReduceMotion();
     if (reduce) {
       gsap.set([vip, auto, region, accent], {
         opacity: 1,
@@ -395,9 +401,10 @@ export function MobileMenu() {
         color: "#ffffff",
         backgroundColor: "transparent",
         textShadow: "none",
+        force3D: false,
       });
-      if (arrow) gsap.set(arrow, { opacity: 0, y: 0 });
-      if (label) gsap.set(label, { opacity: 0, scale: 1, color: "#ffffff" });
+      if (arrow) gsap.set(arrow, { opacity: 0, y: 0, force3D: false });
+      if (label) gsap.set(label, { opacity: 0, scale: 1, color: "#ffffff", force3D: false });
 
       const masterTl = gsap.timeline();
 
@@ -407,6 +414,7 @@ export function MobileMenu() {
         duration: 0.4,
         ease: "power2.out",
         stagger: 0.03,
+        force3D: false,
       });
 
       if (label) {
@@ -416,6 +424,7 @@ export function MobileMenu() {
             opacity: 1,
             duration: 0.4,
             ease: "power2.out",
+            force3D: false,
           },
           "-=0.1",
         );
@@ -428,6 +437,7 @@ export function MobileMenu() {
             opacity: 1,
             duration: 0.3,
             ease: "power2.out",
+            force3D: false,
           },
           "-=0.2",
         );
@@ -443,12 +453,14 @@ export function MobileMenu() {
               scale: 1.25,
               duration: 0.25,
               ease: "power2.out",
+              force3D: false,
             },
             {
               color: "#ffffff",
               scale: 1,
               duration: 0.4,
               ease: "power2.inOut",
+              force3D: false,
             },
           ],
           stagger: { each: 0.06, from: "start" },
@@ -765,7 +777,7 @@ export function MobileMenu() {
         <div className="relative h-[22px] w-[38px]">
           <span
             ref={lineTopRef}
-            className="absolute left-0 top-0 block h-[1.25px] rounded-[2px]"
+            className="absolute left-0 top-0 block h-[1.5px] rounded-[2px]"
             style={{
               width: "100%",
               background: "#ccff00",
@@ -777,7 +789,7 @@ export function MobileMenu() {
           />
           <span
             ref={lineMidRef}
-            className="absolute left-0 top-[10px] block h-[1.25px] rounded-[2px]"
+            className="absolute left-0 top-[10px] block h-[1px] rounded-[2px]"
             style={{
               width: "72%",
               background: "linear-gradient(90deg, #ccff00 0%, #00f0ff 100%)",
@@ -791,7 +803,7 @@ export function MobileMenu() {
           />
           <span
             ref={lineBotRef}
-            className="absolute bottom-0 left-0 block h-[1.25px] rounded-[2px]"
+            className="absolute bottom-0 left-0 block h-[1.5px] rounded-[2px]"
             style={{
               width: "50%",
               background: "#00f0ff",

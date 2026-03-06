@@ -116,24 +116,6 @@ export default function RootLayout({
         <ParallaxBackground intensity={1} />
         <MobileMenuWrapper />
         <div className="boot-ui relative z-10 pt-[calc(80px+env(safe-area-inset-top))]">{children}</div>
-        <Script id="ui-boot" strategy="beforeInteractive">
-          {`
-            (function () {
-              var root = document.documentElement;
-              root.classList.remove('ui-ready');
-              var show = function () {
-                window.setTimeout(function () {
-                  root.classList.add('ui-ready');
-                }, 110);
-              };
-              if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', show, { once: true });
-              } else {
-                show();
-              }
-            })();
-          `}
-        </Script>
         <Script id="local-business-jsonld" type="application/ld+json">
           {JSON.stringify(localBusinessJsonLd)}
         </Script>

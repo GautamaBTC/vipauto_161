@@ -7,10 +7,21 @@ export function useReducedMotion(): boolean {
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReduced(media.matches);
+    const update = () => {
+      const isMobile = window.matchMedia("(max-width: 767px)").matches;
+      // Keep motion behavior consistent with mobile preview/devtools.
+      setReduced(media.matches && !isMobile);
+    };
+
     update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
+
+    if (typeof media.addEventListener === "function") {
+      media.addEventListener("change", update);
+      return () => media.removeEventListener("change", update);
+    }
+
+    media.addListener(update);
+    return () => media.removeListener(update);
   }, []);
 
   return reduced;
