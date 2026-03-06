@@ -44,7 +44,7 @@ export function BrandsSection() {
           под платформу и электронику конкретной модели.
         </p>
 
-        <details className="mt-8 overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/40">
+        <details className="mt-8 overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-md">
           <summary className="cursor-pointer list-none px-5 py-4 md:px-6 md:py-5">
             <div className="flex items-center justify-between gap-4">
               <div>
@@ -97,4 +97,3 @@ export function BrandsSection() {
     </section>
   );
 }
-
