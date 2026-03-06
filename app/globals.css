@@ -849,8 +849,46 @@ select:focus-visible {
     padding-bottom: 8px !important;
   }
 
-  .mobile-menu-content .phone-number {
-    font-size: 0.95rem !important;
+  .mobile-menu-content .menu-top-phone-wrapper {
+    font-size: 1.2rem !important;
+  }
+}
+
+@media (max-height: 760px) {
+  .mobile-menu-content {
+    padding-top: calc(72px + env(safe-area-inset-top)) !important;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .mobile-menu-content nav a {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .mobile-menu-content .menu-item {
+    font-size: clamp(1.55rem, 6.4vw, 2.2rem) !important;
+  }
+
+  .mobile-menu-content .menu-footer-copy {
+    display: none;
+  }
+
+  .mobile-menu-content .menu-top-phone-wrapper {
+    font-size: 1.35rem !important;
+  }
+
+  .mobile-menu-content .call-label {
+    font-size: 10px !important;
+    letter-spacing: 0.18em !important;
+  }
+
+  .mobile-menu-content .menu-actions {
+    gap: 8px !important;
+    margin-top: 8px !important;
+  }
+
+  .mobile-menu-content .menu-actions a {
+    height: 40px !important;
   }
 }
 

@@ -790,11 +790,12 @@ export function MobileMenu() {
 
           <div
             ref={contentRef}
-            className="mobile-menu-content relative z-10 flex min-h-dvh max-h-dvh flex-col justify-between overflow-hidden px-5 pt-[calc(80px+env(safe-area-inset-top))] pb-[calc(12px+env(safe-area-inset-bottom))]"
+            className="mobile-menu-content relative z-10 flex min-h-dvh max-h-dvh flex-col justify-between overflow-x-hidden overflow-y-auto px-5 pt-[calc(80px+env(safe-area-inset-top))] pb-[calc(12px+env(safe-area-inset-bottom))]"
             style={{
               // Keep scale stable during close animation to avoid visual jump.
               transform: `scale(${menuScale})`,
               transformOrigin: "top center",
+              WebkitOverflowScrolling: "touch",
             }}
           >
 
@@ -835,8 +836,8 @@ export function MobileMenu() {
               </ul>
             </nav>
 
-            <div ref={footerRef} className="mt-3">
-              <p className="mb-3 max-w-[38ch] text-left text-[12px] leading-relaxed tracking-[0.04em] text-[var(--text-secondary)]/84">
+            <div ref={footerRef} className="menu-footer mt-3">
+              <p className="menu-footer-copy mb-3 max-w-[38ch] text-left text-[12px] leading-relaxed tracking-[0.04em] text-[var(--text-secondary)]/84">
                 Премиальный центр автоэлектрики. Диагностика, StarLine, автосвет и сложные электрические случаи.
               </p>
 
@@ -887,7 +888,7 @@ export function MobileMenu() {
                 </div>
               </div>
 
-              <div className="mt-3 grid grid-cols-2 gap-2.5">
+              <div className="menu-actions mt-3 grid grid-cols-2 gap-2.5">
                 <a
                   href={siteConfig.social.whatsapp}
                   aria-label="WhatsApp"
