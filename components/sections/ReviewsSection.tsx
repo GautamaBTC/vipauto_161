@@ -41,7 +41,7 @@ export function ReviewsSection() {
           {reviews.filter((review) => review.id !== "r5").map((review) => (
             <article key={review.id} className="review-card card-surface rounded-xl p-6 md:p-8">
               <p className="text-sm leading-normal text-zinc-500">
-                {"★".repeat(review.rating)} <span className="ml-1">{review.car}</span>
+                <span className="text-[#f5c542]">{`${"★".repeat(review.rating)}`}</span> <span className="ml-1">{review.car}</span>
               </p>
               <p className="mt-3 text-xs font-medium uppercase tracking-widest text-zinc-500">
                 {review.service} {"•"} {review.date}
