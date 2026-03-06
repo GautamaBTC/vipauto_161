@@ -117,6 +117,7 @@ export function MobileMenu() {
       gsap.set([vip, auto, region, accent], {
         opacity: 1,
         clearProps: "transform",
+        force3D: false,
       });
       return;
     }

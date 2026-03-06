@@ -657,7 +657,6 @@ select:focus-visible {
 
 .menu-top-phone-char {
   display: inline-block;
-  transform: translateZ(0);
   background: transparent !important;
   -webkit-text-fill-color: currentColor;
   isolation: isolate;
