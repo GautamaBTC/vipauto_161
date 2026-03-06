@@ -776,6 +776,7 @@ export function MobileMenu() {
             <div className="absolute inset-0 bg-[#0b1116]/96" />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,17,22,0.96)_0%,rgba(11,17,22,0.9)_42%,rgba(11,17,22,0.97)_100%)] backdrop-blur-[20px]" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,240,255,0.12),transparent_40%),radial-gradient(circle_at_86%_90%,rgba(204,255,0,0.12),transparent_44%)] opacity-90" />
+            <div className="absolute inset-x-0 bottom-0 h-[42vh] bg-[linear-gradient(0deg,rgba(5,10,20,0.98)_0%,rgba(5,10,20,0.82)_45%,transparent_100%)]" />
             <div className="menu-film-grain absolute inset-0 opacity-[0.04]" />
           </div>
 
@@ -826,14 +827,6 @@ export function MobileMenu() {
                 })}
               </ul>
             </nav>
-
-            <div className="mb-4 flex justify-center">
-              <div className="menu-brand-logo relative inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-2.5">
-                <span className="menu-brand-shine text-[clamp(1.05rem,3.8vw,1.4rem)] font-black uppercase tracking-[0.14em] text-white">
-                  VIPАВТО 161
-                </span>
-              </div>
-            </div>
 
             <div ref={footerRef} className="menu-footer mt-3">
               <p className="menu-footer-copy mb-3 max-w-[38ch] text-left text-[12px] leading-relaxed tracking-[0.04em] text-[var(--text-secondary)]/84">
