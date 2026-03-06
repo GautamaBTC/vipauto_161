@@ -697,17 +697,17 @@ export function MobileMenu() {
         >
           <span className="vip-logo-monolith" aria-label="VIPАВТО 161 RUS">
             <span className="logo-text">
-              <span ref={logoVipRef} className="vip-part">VIP</span>
-              <span ref={logoAutoRef} className="auto-part">АВТО</span>
+              <span ref={logoVipRef} className="vip-part logo-anim-node">VIP</span>
+              <span ref={logoAutoRef} className="auto-part logo-anim-node">АВТО</span>
             </span>
-            <span ref={logoRegionRef} className="logo-region">
+            <span ref={logoRegionRef} className="logo-region logo-anim-node">
               <span className="region-code">161</span>
               <span className="region-flag">RUS</span>
             </span>
             <span
               ref={logoAccentRef}
               aria-hidden="true"
-              className="absolute -bottom-[4px] left-0 h-[2px] w-full bg-gradient-to-r from-[#ccff00] to-[#00f0ff]"
+              className="logo-accent-line logo-anim-node absolute -bottom-[4px] left-0 h-[2px] w-full bg-gradient-to-r from-[#ccff00] to-[#00f0ff]"
             />
           </span>
         </Link>

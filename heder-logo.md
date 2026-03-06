@@ -1,165 +1,1258 @@
-﻿# Отладочный подход — минимальный рабочий пример LogoReveal
+﻿# Найдена корневая проблема: React Error #418
 
-## Почему не работало
+## Что значит ошибка #418
 
-`useGSAP` с пустыми `dependencies: []` в связке с `opacity: 0` в inline style может приводить к ситуации, когда в React StrictMode (dev) эффекты вызываются дважды, а cleanup/revert ломает ожидаемую последовательность.
+Это **Hydration Mismatch** — HTML, сгенерированный на сервере (SSR), не совпадает с тем, что React пытается отрендерить на клиенте. Когда это происходит:
 
-Результат: элемент может остаться скрытым (`opacity: 0`) или анимация отрабатывает некорректно.
+1. **React ломает весь DOM-поддерево** и перерендеривает с нуля
+2. Все `ref`-ы теряют привязку к DOM-элементам
+3. `useEffect` / `useGSAP` срабатывают, но **ref.current === null** или указывает на уже удалённый элемент
+4. GSAP анимирует призрачные ноды — ничего не видно
 
-## Минимальный рабочий подход
+**Вот почему лого статично, нет кнопок, нет блика** — React просто выбросил эти элементы при hydration recovery.
 
-- Использовать обычный `useEffect` для предсказуемого one-shot запуска.
-- Добавить guard `hasAnimated.current`, чтобы исключить повтор в StrictMode.
-- Инициализацию стилей делать через `gsap.set`.
-- Не завязывать старт на inline `opacity: 0` в JSX.
+## Что вызывает #418
+
+Самые частые причины в коде:
+
+### Причина A: Браузерные расширения (Brave Shields, Яндекс)
+
+`responsive-toolbar.esm.js` — это **расширение браузера** (Brave или Яндекс), которое вставляет свой HTML через `document.write()` **до гидрации React**. React видит чужой HTML в `<body>` и паникует.
+
+### Причина B: Скрипт `dangerouslySetInnerHTML` в layout
+
+Если добавлен отладочный скрипт в layout — его нужно убрать, он также может вызывать #418.
+
+### Причина C: Динамический контент без `suppressHydrationWarning`
+
+Любой контент, который отличается на сервере и клиенте (дата, случайные числа, user-agent проверки).
+
+---
+
+## Полный код `app/layout.tsx`
 
 ```tsx
-// LogoReveal.tsx
-'use client';
+import type { Metadata, Viewport } from "next";
+import Script from "next/script";
+import { JetBrains_Mono, Manrope } from "next/font/google";
+import { MobileMenu } from "@/components/layout/MobileMenu";
+import ParallaxBackground from "@/components/parallax/ParallaxBackground";
+import { siteConfig } from "@/lib/siteConfig";
+import "./globals.css";
 
-import { useRef, useEffect } from 'react';
-import gsap from 'gsap';
+const manrope = Manrope({
+  subsets: ["cyrillic", "latin"],
+  variable: "--font-manrope",
+});
 
-interface LogoRevealProps {
-  words: string[];
-  className?: string;
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ["cyrillic", "latin"],
+  variable: "--font-jetbrains-mono",
+});
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.siteUrl),
+  title: {
+    default: "VIPАвто — Автоэлектрика и автоэлектроника в Шахтах | Официальный дилер StarLine",
+    template: "%s | VIPАвто",
+  },
+  description:
+    "Профессиональная автоэлектрика в г. Шахты. Установка сигнализаций StarLine, LED/Bi-LED оптика, автозвук, камеры. Рейтинг 4.6 на Яндекс.Картах.",
+  alternates: {
+    canonical: "/",
+  },
+  category: "autos",
+  keywords: [
+    "автоэлектрика шахты",
+    "автоэлектрик шахты",
+    "автоэлектроника",
+    "установка starline",
+    "сигнализация starline шахты",
+    "установка led линз",
+    "автозвук",
+    "диагностика автоэлектрики",
+    "vipauto161",
+  ],
+  openGraph: {
+    title: "VIPАвто",
+    description: "Премиальная автоэлектрика и автоэлектроника в г. Шахты.",
+    type: "website",
+    locale: "ru_RU",
+    url: siteConfig.siteUrl,
+    siteName: "VIPАвто",
+    images: [
+      {
+        url: "/images/plate-logo.svg",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "VIPАвто",
+    description: "Премиальная автоэлектрика и автоэлектроника в г. Шахты.",
+    images: ["/images/plate-logo.svg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#09090b",
+};
+
+const localBusinessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "AutoRepair",
+  name: siteConfig.brand,
+  image: `${siteConfig.siteUrl}/images/plate-logo.svg`,
+  priceRange: "₽₽",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: siteConfig.address,
+    addressLocality: siteConfig.city,
+    addressRegion: siteConfig.region,
+    addressCountry: "RU",
+  },
+  telephone: siteConfig.phones[0],
+  areaServed: "Ростовская область",
+  url: siteConfig.siteUrl,
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      opens: "10:00",
+      closes: "20:00",
+    },
+  ],
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: siteConfig.rating,
+    reviewCount: siteConfig.ratingVotes,
+  },
+  sameAs: [siteConfig.social.telegram, siteConfig.social.whatsapp, siteConfig.social.vk],
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  const yandexMetrikaId = process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID;
+
+  return (
+    <html lang="ru">
+      <body className={`${manrope.variable} ${jetBrainsMono.variable} bg-[var(--bg-primary)] antialiased text-[var(--text-primary)]`}>
+        <ParallaxBackground intensity={1} />
+        <MobileMenu />
+        <div className="boot-ui relative z-10 pt-[calc(80px+env(safe-area-inset-top))]">{children}</div>
+        <Script id="ui-boot" strategy="beforeInteractive">
+          {`
+            (function () {
+              var root = document.documentElement;
+              root.classList.remove('ui-ready');
+              var show = function () {
+                window.setTimeout(function () {
+                  root.classList.add('ui-ready');
+                }, 110);
+              };
+              if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', show, { once: true });
+              } else {
+                show();
+              }
+            })();
+          `}
+        </Script>
+        <Script id="local-business-jsonld" type="application/ld+json">
+          {JSON.stringify(localBusinessJsonLd)}
+        </Script>
+        {yandexMetrikaId ? (
+          <Script id="yandex-metrika" strategy="afterInteractive">
+            {`window.ym=window.ym||function(){(window.ym.a=window.ym.a||[]).push(arguments)};ym(${yandexMetrikaId},"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true});`}
+          </Script>
+        ) : null}
+      </body>
+    </html>
+  );
 }
 
-export function LogoReveal({ words, className = '' }: LogoRevealProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const hasAnimated = useRef(false);
+
+```
+
+## Полный код файла, где рендерится логика LogoReveal (сейчас в `MobileMenu.tsx`)
+
+```tsx
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { gsap } from "gsap";
+import { siteConfig } from "@/lib/siteConfig";
+import { useLockScroll } from "@/hooks/useLockScroll";
+
+type MenuItem = {
+  id: string;
+  href: string;
+  label: string;
+};
+
+const MENU_ITEMS: readonly MenuItem[] = [
+  { id: "services", href: "#services", label: "Услуги" },
+  { id: "products", href: "#products", label: "Товары" },
+  { id: "advantages", href: "#advantages", label: "Преимущества" },
+  { id: "process", href: "#process", label: "Процесс" },
+  { id: "reviews", href: "#reviews", label: "Отзывы" },
+  { id: "contacts", href: "#contacts", label: "Контакты" },
+] as const;
+
+const HEADER_HEIGHT = 72;
+const HEADER_PHONE = "+7 (928) 7777-009";
+const HEADER_PHONE_CHARS = [
+  "+",
+  "7",
+  " ",
+  "(",
+  "9",
+  "2",
+  "8",
+  ")",
+  " ",
+  "7",
+  "7",
+  "7",
+  "7",
+  "-",
+  "0",
+  "0",
+  "9",
+] as const;
+
+export function MobileMenu() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isBurgerVisible, setIsBurgerVisible] = useState(false);
+  const [activeId, setActiveId] = useState<string>("services");
+  const [glitchId, setGlitchId] = useState<string | null>(null);
+  const [menuScale, setMenuScale] = useState(1);
+
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const burgerRef = useRef<HTMLButtonElement>(null);
+  const firstItemRef = useRef<HTMLAnchorElement | null>(null);
+  const lineTopRef = useRef<HTMLSpanElement>(null);
+  const lineMidRef = useRef<HTMLSpanElement>(null);
+  const lineBotRef = useRef<HTMLSpanElement>(null);
+  const logoRef = useRef<HTMLAnchorElement | null>(null);
+  const logoVipRef = useRef<HTMLSpanElement | null>(null);
+  const logoAutoRef = useRef<HTMLSpanElement | null>(null);
+  const logoRegionRef = useRef<HTMLSpanElement | null>(null);
+  const logoAccentRef = useRef<HTMLSpanElement | null>(null);
+  const hasLogoAnimatedRef = useRef(false);
+  const topPhoneRef = useRef<HTMLAnchorElement | null>(null);
+  const callArrowRef = useRef<HTMLDivElement | null>(null);
+  const callLabelRef = useRef<HTMLSpanElement | null>(null);
+  const burgerEntryPlayedRef = useRef(false);
+
+  const itemRefs = useRef<Array<HTMLAnchorElement | null>>([]);
+  const pendingAnchorRef = useRef<string | null>(null);
+  const closeTlRef = useRef<gsap.core.Timeline | null>(null);
+  const openTlRef = useRef<gsap.core.Timeline | null>(null);
+  const burgerTlRef = useRef<gsap.core.Timeline | null>(null);
+  const burgerEntryTlRef = useRef<gsap.core.Timeline | null>(null);
+  const glitchClearTimerRef = useRef<number | null>(null);
+  const openFocusTimerRef = useRef<number | null>(null);
+
+  useLockScroll(isLocked);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    if (hasAnimated.current) return;
-    hasAnimated.current = true;
+    let timeoutId: number | undefined;
 
-    const wordEls = container.querySelectorAll<HTMLElement>('.logo-word');
-    const accent = container.querySelector<HTMLElement>('.logo-accent');
+    const showBurger = () => {
+      timeoutId = window.setTimeout(() => setIsBurgerVisible(true), 1500);
+    };
 
-    if (!wordEls.length) return;
-
-    wordEls.forEach((el, i) => {
-      const fromLeft = i % 2 === 0;
-      gsap.set(el, {
-        opacity: 0,
-        x: fromLeft ? -80 : 80,
-        rotation: fromLeft ? -8 : 8,
-        scale: 0.85,
-      });
-    });
-
-    if (accent) {
-      gsap.set(accent, {
-        opacity: 0,
-        scaleX: 0,
-      });
+    if (document.readyState === "complete") {
+      showBurger();
+    } else {
+      window.addEventListener("load", showBurger, { once: true });
     }
 
-    const tl = gsap.timeline({ delay: 0.3 });
+    return () => {
+      if (timeoutId) window.clearTimeout(timeoutId);
+      window.removeEventListener("load", showBurger);
+    };
+  }, []);
 
-    wordEls.forEach((el, i) => {
-      tl.to(
-        el,
+  useEffect(() => {
+    const logo = logoRef.current;
+    const vip = logoVipRef.current;
+    const auto = logoAutoRef.current;
+    const region = logoRegionRef.current;
+    const accent = logoAccentRef.current;
+    if (!logo || !vip || !auto || !region || !accent) return;
+    if (hasLogoAnimatedRef.current) return;
+    hasLogoAnimatedRef.current = true;
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+
+    const words = [vip, auto, region];
+    gsap.killTweensOf(words);
+    gsap.killTweensOf(logo);
+    gsap.killTweensOf(accent);
+
+    gsap.set(vip, { opacity: 0, x: -80, rotation: -8, scale: 0.85 });
+    gsap.set(auto, { opacity: 0, x: 80, rotation: 8, scale: 0.85 });
+    gsap.set(region, { opacity: 0, x: -80, rotation: -8, scale: 0.85 });
+    gsap.set(accent, { opacity: 0, scaleX: 0, transformOrigin: "left center" });
+
+    const tl = gsap.timeline({ delay: 0.3 });
+    tl.to(vip, {
+      opacity: 1,
+      x: 0,
+      rotation: 0,
+      scale: 1,
+      duration: 0.7,
+      ease: "power3.out",
+    })
+      .to(
+        auto,
         {
           opacity: 1,
           x: 0,
           rotation: 0,
           scale: 1,
           duration: 0.7,
-          ease: 'power3.out',
+          ease: "power3.out",
         },
-        i === 0 ? 0 : '-=0.35'
-      );
-    });
-
-    tl.to(
-      container,
-      {
-        scale: 1.04,
-        duration: 0.2,
-        ease: 'power2.out',
-      },
-      '+=0.05'
-    );
-
-    tl.to(container, {
-      scale: 1,
-      duration: 0.35,
-      ease: 'power2.inOut',
-    });
-
-    if (accent) {
-      tl.to(
-        accent,
+        "-=0.35",
+      )
+      .to(
+        region,
         {
           opacity: 1,
-          scaleX: 1,
-          duration: 0.5,
-          ease: 'power3.out',
+          x: 0,
+          rotation: 0,
+          scale: 1,
+          duration: 0.7,
+          ease: "power3.out",
         },
-        '-=0.4'
-      );
-    }
+        "-=0.35",
+      )
+      .to(logo, { scale: 1.04, duration: 0.2, ease: "power2.out" }, "+=0.05")
+      .to(logo, { scale: 1, duration: 0.35, ease: "power2.inOut" })
+      .to(accent, { opacity: 1, scaleX: 1, duration: 0.5, ease: "power3.out" }, "-=0.4");
 
     return () => {
       tl.kill();
     };
   }, []);
 
+  const setItemRef = useCallback((index: number, el: HTMLAnchorElement | null) => {
+    itemRefs.current[index] = el;
+    if (index === 0) firstItemRef.current = el;
+  }, []);
+
+  const runPendingScroll = useCallback(() => {
+    const pending = pendingAnchorRef.current;
+    if (!pending) return;
+    pendingAnchorRef.current = null;
+
+    const id = pending.replace("#", "");
+    const node = document.getElementById(id);
+    if (!node) return;
+
+    window.requestAnimationFrame(() => {
+      const y = node.getBoundingClientRect().top + window.scrollY - HEADER_HEIGHT;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    });
+  }, []);
+
+  const closeMenu = useCallback((href?: string) => {
+    if (isAnimating) return;
+    if (href) pendingAnchorRef.current = href;
+    setIsAnimating(true);
+    setIsOpen(false);
+  }, [isAnimating]);
+
+  const openMenu = useCallback(() => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setIsLocked(true);
+    setIsOpen(true);
+  }, [isAnimating]);
+
+  const buildBurgerTimeline = useCallback(() => {
+    const top = lineTopRef.current;
+    const mid = lineMidRef.current;
+    const bot = lineBotRef.current;
+    if (!top || !mid || !bot) return null;
+
+    gsap.killTweensOf([top, mid, bot]);
+    burgerTlRef.current?.kill();
+
+    gsap.set(mid, {
+      clipPath: "inset(0% 0% 0% 0%)",
+      WebkitClipPath: "inset(0% 0% 0% 0%)",
+      opacity: 1,
+    });
+
+    const tl = gsap.timeline({ paused: true });
+    tl.to(
+      top,
+      {
+        y: 8,
+        rotate: 45,
+        duration: 0.4,
+        ease: "power3.inOut",
+      },
+      0,
+    )
+      .to(
+        bot,
+        {
+          y: -8,
+          rotate: -45,
+          width: "100%",
+          duration: 0.4,
+          ease: "power3.inOut",
+        },
+        0,
+      )
+      .to(
+        mid,
+        {
+          clipPath: "inset(0% 0% 0% 100%)",
+          WebkitClipPath: "inset(0% 0% 0% 100%)",
+          duration: 0.3,
+          ease: "power2.inOut",
+        },
+        0,
+      );
+
+    burgerTlRef.current = tl;
+    return tl;
+  }, []);
+
+  const trapFocus = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key !== "Tab" || !isOpen || !panelRef.current) return;
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    },
+    [isOpen],
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const sections = MENU_ITEMS.map((item) => document.getElementById(item.id)).filter(Boolean) as HTMLElement[];
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+        if (visible?.target?.id) setActiveId(visible.target.id);
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: [0.2, 0.4, 0.7] },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [isOpen]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isOpen) {
+        event.preventDefault();
+        closeMenu();
+        return;
+      }
+      trapFocus(event);
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [closeMenu, isOpen, trapFocus]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Variant 2: deterministic, clearly visible glitch cycle
+    let loopTimerId: number | undefined;
+    let cycleIndex = 0;
+
+    const tick = () => {
+      const item = MENU_ITEMS[cycleIndex % MENU_ITEMS.length];
+      cycleIndex += 1;
+      if (!item) return;
+
+      setGlitchId(item.id);
+      if (glitchClearTimerRef.current) {
+        window.clearTimeout(glitchClearTimerRef.current);
+      }
+      glitchClearTimerRef.current = window.setTimeout(() => {
+        setGlitchId((prev) => (prev === item.id ? null : prev));
+      }, 420);
+
+      loopTimerId = window.setTimeout(tick, 1400);
+    };
+
+    loopTimerId = window.setTimeout(tick, 260);
+
+    return () => {
+      if (loopTimerId) window.clearTimeout(loopTimerId);
+      if (glitchClearTimerRef.current) {
+        window.clearTimeout(glitchClearTimerRef.current);
+        glitchClearTimerRef.current = null;
+      }
+      setGlitchId(null);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !topPhoneRef.current) return;
+
+    const phoneNode = topPhoneRef.current;
+    const chars = Array.from(phoneNode.querySelectorAll<HTMLElement>('[data-phone-char="digit"]'));
+    const arrow = callArrowRef.current;
+    const label = callLabelRef.current;
+    if (!chars.length) return;
+
+    const ctx = gsap.context(() => {
+      gsap.set(chars, {
+        opacity: 0,
+        y: 20,
+        scale: 1,
+        color: "#ffffff",
+        backgroundColor: "transparent",
+        textShadow: "none",
+      });
+      if (arrow) gsap.set(arrow, { opacity: 0, y: 0 });
+      if (label) gsap.set(label, { opacity: 0, scale: 1, color: "#ffffff" });
+
+      const masterTl = gsap.timeline();
+
+      masterTl.to(chars, {
+        opacity: 1,
+        y: 0,
+        duration: 0.4,
+        ease: "power2.out",
+        stagger: 0.03,
+      });
+
+      if (label) {
+        masterTl.to(
+          label,
+          {
+            opacity: 1,
+            duration: 0.4,
+            ease: "power2.out",
+          },
+          "-=0.1",
+        );
+      }
+
+      if (arrow) {
+        masterTl.to(
+          arrow,
+          {
+            opacity: 1,
+            duration: 0.3,
+            ease: "power2.out",
+          },
+          "-=0.2",
+        );
+      }
+
+      const waveTl = gsap.timeline({ repeat: -1, repeatDelay: 3 });
+      waveTl.to(
+        chars,
+        {
+          keyframes: [
+            {
+              color: "#ccff00",
+              scale: 1.25,
+              duration: 0.25,
+              ease: "power2.out",
+            },
+            {
+              color: "#ffffff",
+              scale: 1,
+              duration: 0.4,
+              ease: "power2.inOut",
+            },
+          ],
+          stagger: { each: 0.06, from: "start" },
+        },
+        0,
+      );
+
+      masterTl.add(waveTl, "+=0.5");
+
+      if (arrow) {
+        const arrowTl = gsap.timeline({ repeat: -1, repeatDelay: 1.5 });
+        arrowTl
+          .to(arrow, { y: -8, duration: 0.3, ease: "power2.out" })
+          .to(arrow, { y: 0, duration: 0.25, ease: "bounce.out" })
+          .to(arrow, { y: -5, duration: 0.2, ease: "power2.out" })
+          .to(arrow, { y: 0, duration: 0.2, ease: "bounce.out" });
+        masterTl.add(arrowTl, 1.5);
+      }
+
+      if (label) {
+        const labelTl = gsap.timeline({ repeat: -1, repeatDelay: 2 });
+        labelTl
+          .to(label, { color: "#ccff00", scale: 1.1, duration: 0.4, ease: "power2.out" })
+          .to(label, { color: "#00f0ff", scale: 1, duration: 0.5, ease: "power2.inOut" })
+          .to(label, { color: "#ffffff", duration: 0.3, ease: "power1.in" });
+        masterTl.add(labelTl, 2);
+      }
+    }, phoneNode);
+
+    return () => {
+      ctx.revert();
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!burgerTlRef.current) return;
+    if (isOpen) {
+      burgerTlRef.current.play();
+    } else {
+      burgerTlRef.current.reverse();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const top = lineTopRef.current;
+    const mid = lineMidRef.current;
+    const bot = lineBotRef.current;
+    if (!isBurgerVisible || !top || !mid || !bot || burgerEntryPlayedRef.current) return;
+
+    const lines = [top, mid, bot];
+    gsap.killTweensOf(lines);
+    burgerEntryTlRef.current?.kill();
+    gsap.set(lines, { y: -60, opacity: 0, scaleX: 0.3 });
+
+    const entryTl = gsap.timeline({
+      delay: 0.3,
+      onComplete: () => {
+        burgerEntryPlayedRef.current = true;
+        gsap.set(lines, { clearProps: "y,opacity,scaleX" });
+        const tl = buildBurgerTimeline();
+        if (tl) {
+          if (isOpen) tl.play();
+          else tl.progress(0);
+        }
+        burgerEntryTlRef.current = null;
+      },
+    });
+      entryTl
+        .to(top, { y: 0, opacity: 1, scaleX: 1, duration: 0.8, ease: "elastic.out(0.4, 0.3)" }, 0)
+        .to(mid, { y: 0, opacity: 1, scaleX: 1, duration: 0.75, ease: "elastic.out(0.4, 0.3)" }, "-=0.55")
+        .to(bot, { y: 0, opacity: 1, scaleX: 1, duration: 0.7, ease: "elastic.out(0.4, 0.3)" }, "-=0.5");
+    burgerEntryTlRef.current = entryTl;
+
+    return () => {
+      burgerEntryTlRef.current?.kill();
+      burgerEntryTlRef.current = null;
+      if (!burgerEntryPlayedRef.current) {
+        gsap.set(lines, { clearProps: "y,opacity,scaleX" });
+      }
+    };
+  }, [buildBurgerTimeline, isBurgerVisible, isOpen]);
+
+  useEffect(() => {
+    if (!isBurgerVisible || !burgerEntryPlayedRef.current || burgerTlRef.current) return;
+    const tl = buildBurgerTimeline();
+    if (!tl) return;
+    if (isOpen) tl.play();
+    else tl.progress(0);
+  }, [buildBurgerTimeline, isBurgerVisible, isOpen]);
+
+  useEffect(() => {
+    const overlay = overlayRef.current;
+    const panel = panelRef.current;
+    const footer = footerRef.current;
+    const items = itemRefs.current.filter(Boolean) as HTMLAnchorElement[];
+
+    if (!overlay || !panel || !footer || !items.length) return;
+
+    openTlRef.current?.kill();
+    closeTlRef.current?.kill();
+    gsap.killTweensOf([overlay, panel, footer, ...items]);
+
+    if (isOpen) {
+      gsap.set(overlay, {
+        autoAlpha: 1,
+        visibility: "visible",
+        pointerEvents: "auto",
+      });
+
+      gsap.set(panel, { y: 36, scale: 0.985, autoAlpha: 0 });
+      gsap.set(items, {
+        y: 46,
+        autoAlpha: 0,
+      });
+      gsap.set(footer, { autoAlpha: 0, y: 24 });
+
+      const openTl = gsap.timeline({
+        onComplete: () => {
+          setIsAnimating(false);
+        },
+      });
+
+      openTl
+        .to(
+          panel,
+          {
+            y: 0,
+            scale: 1,
+            autoAlpha: 1,
+            duration: 0.62,
+            ease: "back.out(1.45)",
+          },
+          0,
+        )
+        .to(
+          items,
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.48,
+            stagger: 0.08,
+            ease: "back.out(1.45)",
+          },
+          0.1,
+        )
+        .to(footer, { autoAlpha: 1, y: 0, duration: 0.36, ease: "back.out(1.35)" }, 0.28);
+
+      openTlRef.current = openTl;
+
+      if (openFocusTimerRef.current) {
+        window.clearTimeout(openFocusTimerRef.current);
+      }
+      openFocusTimerRef.current = window.setTimeout(() => firstItemRef.current?.focus(), 200);
+      return () => {
+        if (openFocusTimerRef.current) {
+          window.clearTimeout(openFocusTimerRef.current);
+          openFocusTimerRef.current = null;
+        }
+        openTlRef.current?.kill();
+      };
+    }
+
+    const closeTl = gsap.timeline({
+      onComplete: () => {
+        gsap.set(overlay, {
+          autoAlpha: 0,
+          visibility: "hidden",
+          pointerEvents: "none",
+        });
+        burgerRef.current?.focus();
+        setIsLocked(false);
+        runPendingScroll();
+        setIsAnimating(false);
+      },
+    });
+
+    closeTl
+      .to(
+        items,
+        {
+          y: 22,
+          autoAlpha: 0,
+          duration: 0.2,
+          stagger: { each: 0.04, from: "end" },
+          ease: "power2.inOut",
+        },
+        0,
+      )
+      .to(footer, { autoAlpha: 0, y: 16, duration: 0.15, ease: "power2.in" }, 0)
+      .to(panel, { y: 26, autoAlpha: 0, scale: 0.985, duration: 0.34, ease: "power3.in" }, 0.06);
+
+    closeTlRef.current = closeTl;
+
+    return () => {
+      if (openFocusTimerRef.current) {
+        window.clearTimeout(openFocusTimerRef.current);
+        openFocusTimerRef.current = null;
+      }
+      openTlRef.current?.kill();
+      closeTlRef.current?.kill();
+    };
+  }, [isOpen, runPendingScroll]);
+
+  const phoneHref = useMemo(() => `tel:${HEADER_PHONE.replace(/[^\d+]/g, "")}`, []);
+  const phoneChars = useMemo(() => HEADER_PHONE_CHARS, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let resizeDebounceTimer: number | undefined;
+    const recalcScale = () => {
+      const content = contentRef.current;
+      if (!content) return;
+      const viewportHeight = window.innerHeight;
+      const contentHeight = content.scrollHeight;
+      if (contentHeight <= viewportHeight) {
+        setMenuScale(1);
+        return;
+      }
+      const ratio = viewportHeight / contentHeight;
+      setMenuScale(Math.max(0.72, Math.min(1, ratio * 0.99)));
+    };
+
+    const onResize = () => {
+      if (resizeDebounceTimer) {
+        window.clearTimeout(resizeDebounceTimer);
+      }
+      resizeDebounceTimer = window.setTimeout(recalcScale, 150);
+    };
+
+    const raf = window.requestAnimationFrame(recalcScale);
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.cancelAnimationFrame(raf);
+      if (resizeDebounceTimer) {
+        window.clearTimeout(resizeDebounceTimer);
+      }
+      window.removeEventListener("resize", onResize);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    const rootContent = document.querySelector<HTMLElement>(".boot-ui");
+    if (!rootContent) return;
+
+    if (isOpen) {
+      rootContent.setAttribute("aria-hidden", "true");
+      rootContent.setAttribute("inert", "");
+      return () => {
+        rootContent.removeAttribute("aria-hidden");
+        rootContent.removeAttribute("inert");
+      };
+    }
+
+    rootContent.removeAttribute("aria-hidden");
+    rootContent.removeAttribute("inert");
+    return undefined;
+  }, [isOpen]);
+
   return (
-    <div
-      ref={containerRef}
-      className={`fixed left-5 top-5 z-[10001] flex flex-col items-start ${className}`}
-      style={{
-        transition: 'none',
-        transformOrigin: 'left center',
-      }}
-    >
-      <div className="flex items-baseline gap-2">
-        {words.map((word, i) => (
+    <>
+      <header
+        className="fixed left-0 right-0 top-0 z-[1200] flex h-[calc(80px+env(safe-area-inset-top))] items-center justify-center px-5 pt-[env(safe-area-inset-top)] md:hidden"
+        style={{
+          background: "rgba(5,10,20,0.8)",
+          backdropFilter: "blur(10px) saturate(130%)",
+          WebkitBackdropFilter: "blur(10px) saturate(130%)",
+          willChange: "transform",
+          transform: "translateZ(0)",
+        }}
+      >
+        <Link
+          ref={logoRef}
+          href="/"
+          className="header-logo pointer-events-auto absolute top-1/2 z-[1201] -translate-y-1/2 select-none"
+          style={{ left: "max(1.25rem, env(safe-area-inset-left))" }}
+          aria-label="VIPAuto161 Главная"
+        >
+          <span className="vip-logo-monolith" aria-label="VIPАВТО 161 RUS">
+            <span className="logo-text">
+              <span ref={logoVipRef} className="vip-part">VIP</span>
+              <span ref={logoAutoRef} className="auto-part">АВТО</span>
+            </span>
+            <span ref={logoRegionRef} className="logo-region">
+              <span className="region-code">161</span>
+              <span className="region-flag">RUS</span>
+            </span>
+            <span
+              ref={logoAccentRef}
+              aria-hidden="true"
+              className="absolute -bottom-[4px] left-0 h-[2px] w-full bg-gradient-to-r from-[#ccff00] to-[#00f0ff]"
+            />
+          </span>
+        </Link>
+      </header>
+
+      <button
+        ref={burgerRef}
+        type="button"
+        onClick={isOpen ? () => closeMenu() : openMenu}
+        aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
+        aria-expanded={isOpen}
+        aria-controls="mobile-nav-dialog"
+        className={`tap-none touch-manipulation fixed right-5 top-0 z-[10001] flex h-[calc(80px+env(safe-area-inset-top))] w-[84px] items-center justify-end pt-[env(safe-area-inset-top)] transition-opacity duration-300 md:hidden ${isBurgerVisible ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
+        style={{ background: "none", border: "none", outline: "none" }}
+      >
+        <div className="relative h-[22px] w-[38px]">
           <span
-            key={i}
-            className="logo-word"
+            ref={lineTopRef}
+            className="absolute left-0 top-0 block h-[1.25px] rounded-[2px]"
             style={{
-              display: 'inline-block',
-              fontSize: '1.4rem',
-              fontWeight: i === 0 ? 800 : 300,
-              color: i === 0 ? '#ccff00' : '#ffffff',
-              letterSpacing: '0.05em',
-              textTransform: 'uppercase',
-              transition: 'none',
-              transformOrigin: 'center center',
+              width: "100%",
+              background: "#ccff00",
+              boxShadow: "0 0 8px rgba(204,255,0,0.25)",
+              transform: "translateY(0) rotate(0)",
+              transformOrigin: "center center",
+              transition: "none",
+            }}
+          />
+          <span
+            ref={lineMidRef}
+            className="absolute left-0 top-[10px] block h-[1.25px] rounded-[2px]"
+            style={{
+              width: "72%",
+              background: "linear-gradient(90deg, #ccff00 0%, #00f0ff 100%)",
+              boxShadow: "0 0 8px rgba(224,230,237,0.25)",
+              opacity: 1,
+              clipPath: "inset(0 0 0 0)",
+              WebkitClipPath: "inset(0 0 0 0)",
+              transformOrigin: "center center",
+              transition: "none",
+            }}
+          />
+          <span
+            ref={lineBotRef}
+            className="absolute bottom-0 left-0 block h-[1.25px] rounded-[2px]"
+            style={{
+              width: "50%",
+              background: "#00f0ff",
+              boxShadow: "0 0 8px rgba(0,240,255,0.25)",
+              transform: "translateY(0) rotate(0)",
+              transformOrigin: "center center",
+              transition: "none",
+            }}
+          />
+        </div>
+      </button>
+
+      <div ref={overlayRef} className="pointer-events-none invisible fixed inset-0 z-[9999] md:hidden" aria-hidden={!isOpen}>
+        <div
+          id="mobile-nav-dialog"
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Мобильная навигация"
+          className="absolute inset-0 overflow-hidden"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) closeMenu();
+          }}
+        >
+          <div className="pointer-events-none absolute inset-0">
+            <video className="h-full w-full object-cover object-center" autoPlay muted loop playsInline preload="metadata">
+              <source src="/uploads/videos/menu-bg.webm" type="video/webm" />
+              <source src="/uploads/videos/menu-bg.mp4" type="video/mp4" />
+              <source src="/uploads/videos/hader.mp4" type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,17,22,0.85)_0%,rgba(11,17,22,0.72)_42%,rgba(11,17,22,0.86)_100%)] backdrop-blur-[20px]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(0,240,255,0.12),transparent_40%),radial-gradient(circle_at_86%_90%,rgba(204,255,0,0.12),transparent_44%)]" />
+            <div className="menu-film-grain absolute inset-0 opacity-[0.06]" />
+          </div>
+
+          <div
+            ref={contentRef}
+            className="mobile-menu-content relative z-10 flex min-h-dvh max-h-dvh flex-col justify-between overflow-x-hidden overflow-y-auto px-5 pt-[calc(80px+env(safe-area-inset-top))] pb-[calc(12px+env(safe-area-inset-bottom))]"
+            style={{
+              // Keep scale stable during close animation to avoid visual jump.
+              transform: `scale(${menuScale})`,
+              transformOrigin: "top center",
+              WebkitOverflowScrolling: "touch",
             }}
           >
-            {word}
-          </span>
-        ))}
-      </div>
 
-      <div
-        className="logo-accent mt-1 h-[2px] w-full bg-gradient-to-r from-[#ccff00] to-[#00f0ff]"
-        style={{
-          transformOrigin: 'left center',
-          transition: 'none',
-        }}
-      />
-    </div>
+            <nav className="flex flex-1 items-start justify-center pt-2">
+              <ul className="w-full max-w-md">
+                {MENU_ITEMS.map((item, index) => {
+                  const isActive = activeId === item.id;
+                  const isGlitching = glitchId === item.id;
+                  return (
+                    <li key={item.id}>
+                      <a
+                        ref={(el) => setItemRef(index, el)}
+                        href={item.href}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          closeMenu(item.href);
+                        }}
+                        className="tap-none touch-manipulation group flex items-baseline justify-center py-[clamp(12px,2.6vh,24px)] text-center focus-visible:outline-none"
+                      >
+                        <span
+                          className={`menu-item ${isGlitching ? "glitch-active" : ""}`}
+                          style={{
+                            fontSize: "clamp(2rem, 7vw, 2.8rem)",
+                            fontWeight: 300,
+                            lineHeight: 1.1,
+                            letterSpacing: "-0.01em",
+                            color: isActive ? "#ffffff" : "#f4f7fb",
+                            transition: "none",
+                            opacity: isActive ? 1 : 0.92,
+                          }}
+                        >
+                          <span className="inline-block">{item.label}</span>
+                        </span>
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+
+            <div ref={footerRef} className="menu-footer mt-3">
+              <p className="menu-footer-copy mb-3 max-w-[38ch] text-left text-[12px] leading-relaxed tracking-[0.04em] text-[var(--text-secondary)]/84">
+                Премиальный центр автоэлектрики. Диагностика, StarLine, автосвет и сложные электрические случаи.
+              </p>
+
+              <div className="mb-4 flex justify-center">
+                <div className="h-px w-16 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              </div>
+
+              <div className="mb-4 flex flex-col items-center gap-2">
+                <a
+                  ref={topPhoneRef}
+                  href={phoneHref}
+                  className="menu-top-phone-wrapper text-white"
+                  style={{
+                    fontFamily: "var(--font-jetbrains-mono), monospace",
+                    fontSize: "1.65rem",
+                    letterSpacing: "0.02em",
+                  }}
+                  aria-label={`Позвонить ${HEADER_PHONE}`}
+                >
+                  {phoneChars.map((char, index) => (
+                    <span
+                      key={`phone-top-${index}-${char}`}
+                      data-phone-char={char === " " ? "space" : "digit"}
+                      className={`menu-top-phone-char ${char === " " ? "space" : ""}`}
+                    >
+                      {char === " " ? "\u00A0" : char}
+                    </span>
+                  ))}
+                </a>
+
+                <div className="flex flex-col items-center gap-1">
+                  <div ref={callArrowRef} className="call-arrow" style={{ transformOrigin: "center center" }}>
+                    <svg width="24" height="32" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <line x1="12" y1="32" x2="12" y2="6" stroke="url(#arrowGrad)" strokeWidth="2" strokeLinecap="round" />
+                      <line x1="12" y1="6" x2="5" y2="13" stroke="#ccff00" strokeWidth="2" strokeLinecap="round" />
+                      <line x1="12" y1="6" x2="19" y2="13" stroke="#ccff00" strokeWidth="2" strokeLinecap="round" />
+                      <defs>
+                        <linearGradient id="arrowGrad" x1="12" y1="32" x2="12" y2="6">
+                          <stop offset="0%" stopColor="#00f0ff" stopOpacity="0.3" />
+                          <stop offset="100%" stopColor="#ccff00" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+                  <span ref={callLabelRef} className="call-label inline-block text-xs font-bold uppercase tracking-[0.25em] text-white/80">
+                    позвонить
+                  </span>
+                </div>
+              </div>
+
+              <div className="menu-actions mt-3 grid grid-cols-2 gap-2.5">
+                <a
+                  href={siteConfig.social.whatsapp}
+                  aria-label="WhatsApp"
+                  className="btn-shine tap-none touch-manipulation flex h-11 items-center justify-center gap-2 rounded-full border border-[#ccff0026] bg-[#ccff0014] px-3.5 transition-all duration-300 hover:border-[#ccff0059] hover:bg-[#ccff0026] hover:shadow-[0_0_20px_rgba(204,255,0,0.15)]"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccff00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                  </svg>
+                  <span className="text-[0.78rem] font-semibold tracking-[0.04em] text-[#ccff00]">WhatsApp</span>
+                </a>
+
+                <a
+                  href={siteConfig.social.telegram}
+                  aria-label="Telegram"
+                  className="btn-shine tap-none touch-manipulation flex h-11 items-center justify-center gap-2 rounded-full border border-[#00f0ff26] bg-[#00f0ff0f] px-3.5 transition-all duration-300 hover:border-[#00f0ff59] hover:bg-[#00f0ff1f] hover:shadow-[0_0_20px_rgba(0,240,255,0.15)]"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
+                  <span className="text-[0.78rem] font-semibold tracking-[0.04em] text-[#00f0ff]">Telegram</span>
+                </a>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
+}
+
+```
+
+## Полный код `app/page.tsx`
+
+```tsx
+import { StickyMobileActions } from "@/components/effects/StickyMobileActions";
+import { ParallaxSection } from "@/components/parallax/ParallaxSection";
+import { Footer } from "@/components/layout/Footer";
+import { ScrollProgress } from "@/components/layout/ScrollProgress";
+import { AdvantagesSection } from "@/components/sections/AdvantagesSection";
+import { BrandsSection } from "@/components/sections/BrandsSection";
+import { CompareSection } from "@/components/sections/CompareSection";
+import { ContactSection } from "@/components/sections/ContactSection";
+import { HeroSection } from "@/components/sections/HeroSection";
+import { ProcessSection } from "@/components/sections/ProcessSection";
+import { ReviewsSection } from "@/components/sections/ReviewsSection";
+import { ServicesSection } from "@/components/sections/ServicesSection";
+import { StatsSection } from "@/components/sections/StatsSection";
+import { MultimeterSpoiler } from "@/components/sections/MultimeterSpoiler";
+
+export default function Home() {
+  return (
+    <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-[var(--accent)] focus:px-3 focus:py-2 focus:font-semibold focus:text-black"
+      >
+        Перейти к содержимому
+      </a>
+      <ScrollProgress />
+      <main id="main-content">
+        <HeroSection />
+        <ParallaxSection
+          className="relative"
+          layers={[
+            {
+              id: "stats-glow",
+              speed: -0.2,
+              z: 0,
+              style: {
+                background:
+                  "radial-gradient(circle at 50% 50%, rgba(0,240,255,0.12) 0%, rgba(204,255,0,0.08) 42%, transparent 72%)",
+                filter: "blur(80px)",
+                transform: "translateZ(0)",
+              },
+            },
+            {
+              id: "stats-grid",
+              speed: -0.08,
+              z: 1,
+              opacityRange: [0.12, 0.03],
+              style: {
+                backgroundImage:
+                  "linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)",
+                backgroundSize: "80px 80px",
+              },
+            },
+          ]}
+        >
+          <StatsSection />
+        </ParallaxSection>
+        <ParallaxSection
+          className="relative"
+          layers={[
+            {
+              id: "cmp-bg",
+              speed: -0.16,
+              z: 0,
+              style: {
+                background:
+                  "radial-gradient(ellipse at 20% 50%, rgba(0,240,255,0.09) 0%, transparent 70%), radial-gradient(ellipse at 80% 50%, rgba(204,255,0,0.1) 0%, transparent 70%)",
+              },
+            },
+            {
+              id: "cmp-grid",
+              speed: -0.06,
+              z: 1,
+              opacityRange: [0.1, 0.02],
+              style: {
+                backgroundImage:
+                  "linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)",
+                backgroundSize: "100px 100px",
+              },
+            },
+          ]}
+        >
+          <CompareSection />
+        </ParallaxSection>
+        <ServicesSection />
+        <AdvantagesSection />
+        <ProcessSection />
+        <BrandsSection />
+        <ReviewsSection />
+        <ContactSection />
+        <MultimeterSpoiler />
+      </main>
+      <StickyMobileActions />
+      <Footer />
+    </>
+  );
+}
+
+```
+
+---
+
+## Экстренный фикс гидрации (временный)
+
+```tsx
+// components/ClientOnly.tsx
+'use client';
+
+import { useState, useEffect, type ReactNode } from 'react';
+
+export function ClientOnly({ children }: { children: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return <>{children}</>;
 }
 ```
 
-## Ключевые отличия
+Пример использования:
 
-| Изменение | Зачем |
-|---|---|
-| `useEffect` вместо `useGSAP` | Предсказуемый запуск и меньше шансов словить revert-конфликты в dev StrictMode |
-| `hasAnimated.current` guard | Исключает повторный запуск анимации |
-| `querySelectorAll` | Простой прямой DOM-поиск |
-| Без `clearProps` | Минимум лишней логики в debug-варианте |
-| Без `opacity: 0` в JSX | Начальные состояния задает GSAP |
+```tsx
+import { ClientOnly } from '@/components/ClientOnly';
+import { MobileMenu } from '@/components/MobileMenu';
+import { LogoReveal } from '@/components/LogoReveal';
 
-## Примечание
+export default function Page() {
+  return (
+    <main>
+      <ClientOnly>
+        <LogoReveal words={['BRAND', 'STUDIO']} />
+        <MobileMenu />
+      </ClientOnly>
 
-Если будет краткий flash до старта анимации, можно временно добавить `opacity: 0` в JSX для `.logo-word`, но базовый вариант сначала проверяется без него.
+      {/* Остальной контент страницы */}
+    </main>
+  );
+}
+```
